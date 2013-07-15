@@ -58,13 +58,8 @@ def import_monster_associations
   end
 end
 
-DataMapper.setup(:default, {
-  :adapter => 'postgres',
-  :host => 'localhost',
-  :database => 'pazudora',
-  :user => 'victor',
-  :password => 'wtfpostgres'
-})
+config = JSON.parse(File.read("database_config.json"))
+DataMapper.setup(:default, config)
 DataMapper.finalize
 DataMapper.auto_migrate!
 import_monsters

@@ -1,19 +1,15 @@
 require 'cinch'
 require 'pry'
 require 'data_mapper'
+require 'json'
 require './dispatcher.rb'
 require './plugins/base.rb'
 Dir.glob("plugins/*.rb").each {|x| require_relative x}
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
 def initialize_database
-  DataMapper.setup(:default, {
-    :adapter => 'postgres',
-    :host => 'localhost',
-    :database => 'pazudora',
-    :user => 'victor',
-    :password => 'wtfpostgres'
-  })
+  config = JSON.parse(File.read("database_config.json"))
+  DataMapper.setup(:default, config)
   DataMapper.finalize
 end
 
