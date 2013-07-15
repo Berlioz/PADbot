@@ -1,8 +1,21 @@
 require 'cinch'
 require 'pry'
+require 'data_mapper'
 require './dispatcher.rb'
 require './plugins/base.rb'
 Dir.glob("plugins/*.rb").each {|x| require_relative x}
+Dir.glob("models/*.rb").each {|x| require_relative x}
+
+def initialize_database
+  DataMapper.setup(:default, {
+    :adapter => 'postgres',
+    :host => 'localhost',
+    :database => 'pazudora',
+    :user => 'victor',
+    :password => 'wtfpostgres'
+  })
+  DataMapper.finalize
+end
 
 def initialize_cinch
   Cinch::Bot.new do
@@ -15,5 +28,6 @@ def initialize_cinch
   end
 end
 
+initialize_database
 bot = initialize_cinch
-bot.start
+#bot.start

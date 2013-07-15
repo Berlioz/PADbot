@@ -21,6 +21,8 @@ GEM
       dm-transactions (~> 1.2.0)
       dm-types (~> 1.2.0)
       dm-validations (~> 1.2.0)
+    data_objects (0.10.13)
+      addressable (~> 2.1)
     diff-lcs (1.2.4)
     distribution (0.7.0)
     dm-aggregates (1.2.0)
@@ -29,8 +31,14 @@ GEM
       dm-core (~> 1.2.0)
     dm-core (1.2.1)
       addressable (~> 2.3)
+    dm-do-adapter (1.2.0)
+      data_objects (~> 0.10.6)
+      dm-core (~> 1.2.0)
     dm-migrations (1.2.0)
       dm-core (~> 1.2.0)
+    dm-postgres-adapter (1.2.0)
+      dm-do-adapter (~> 1.2.0)
+      do_postgres (~> 0.10.6)
     dm-serializer (1.2.2)
       dm-core (~> 1.2.0)
       fastercsv (~> 1.5)
@@ -51,6 +59,8 @@ GEM
       uuidtools (~> 2.1)
     dm-validations (1.2.0)
       dm-core (~> 1.2.0)
+    do_postgres (0.10.13)
+      data_objects (= 0.10.13)
     faraday (0.8.7)
       multipart-post (~> 1.1)
     fastercsv (1.5.5)
@@ -104,6 +114,7 @@ DEPENDENCIES
   cinch
   data_mapper
   distribution
+  dm-postgres-adapter
   gist
   levenshtein
   nokogiri

@@ -9,6 +9,7 @@ gem 'rspec'
 gem 'pry'
 
 # Database
+gem 'dm-postgres-adapter'
 gem 'data_mapper'
 
 # Plugin dependencies
