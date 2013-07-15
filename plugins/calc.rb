@@ -5,6 +5,10 @@ class CalcPlugin < PazudoraPluginBase
     ['calc']
   end
 
+  def self.helpstring
+    "!pad calc EXPR: Computes an arbitrary mathematical expression in sanitized ruby. (example: !pad calc 10000 * 0.7 ^ 2)"
+  end
+
   def respond(m, args)
     output = Calc.evaluate(args.gsub(/\^/, "**"))
     if output.respond_to?(:round)

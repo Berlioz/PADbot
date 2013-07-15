@@ -9,8 +9,7 @@ class PazudoraPluginBase
   end
 
   def self.helpstring
-"Computes an arbitrary mathematical expression in ruby, with sanitation.
-Example: !pad calc 0.8 ** 5 for your odds of getting screwed on a 5 skillup feed."
+    "No HELP information defined for #{self.name}. Bug Asterism about it."
   end
 
   def self.aliases

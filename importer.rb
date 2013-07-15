@@ -46,9 +46,7 @@ def import_monster_associations
       if successor_name.include? "busty"
         successors = evolution_chain.slice(own_index + 1, evolution_chain.length + 1)
         successors = successors.map{|line| line.gsub("(busty)", "").strip}   
-        p successors
         successor_ids = successors.map{|name| Monster.first(:name => name)}
-        p successor_ids
         base_monster.evolved = successor_ids   
       else
         successor = Monster.first(:name => successor_name)

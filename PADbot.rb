@@ -30,4 +30,4 @@ end
 
 initialize_database
 bot = initialize_cinch
-#bot.start
+bot.start
