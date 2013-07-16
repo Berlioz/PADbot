@@ -8,7 +8,7 @@ A(nother) Puzzle and Dragons IRC bot.
 2) set up RVM if you want, bundle isntall  
 3) create an empty Postgres database for the app (I used 9.1)  
 4) modify database_config.json to match the created database in (3)  
-5) modify irc_config.json to tell the bot what to connect to
+5) modify irc_config.json to tell the bot what to connect to  
 6) run importer.rb to seed the database with initial data  
 7) edit PADbot.rb for IRC server, channel, nick settings  
 8) ruby PADbot.rb  
