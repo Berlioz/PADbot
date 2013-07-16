@@ -14,11 +14,12 @@ def initialize_database
 end
 
 def initialize_cinch
+  config = JSON.parse(File.read("irc_config.json"))
   Cinch::Bot.new do
     configure do |c|
-      c.server = "irc.synirc.net"
-      c.nick = "asterbot-kai"
-      c.channels = [ "#asterbottest"]
+      c.server = config["server"]
+      c.nick = config["nick"]
+      c.channels = config["channels"]
       c.plugins.plugins = [Dispatcher]
     end
   end
