@@ -10,5 +10,7 @@ A(nother) Puzzle and Dragons IRC bot.
 4) modify database_config.json to match the created database in (3)  
 5) modify irc_config.json to tell the bot what to connect to  
 6) run importer.rb to seed the database with initial data  
-7) edit PADbot.rb for IRC server, channel, nick settings  
-8) ruby PADbot.rb  
+7) ruby PADbot.rb  
+
+### DB Troublleshooting:
+ruby data_console.rb
