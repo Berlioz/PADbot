@@ -58,4 +58,8 @@ class Monster
     return nil if Levenshtein.distance(identifier.downcase, choice.downcase) > limit
     self.first(:name => choice)
   end
+
+  def to_s
+    name 
+  end
 end

@@ -1,26 +1,38 @@
 require 'data_mapper'
 require 'json'
 require 'yaml'
+require 'pry'
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
 def extract_material_id(line)
-  line.gsub(/[^0-9]/,"").to_i
+  id = line.gsub(/[^0-9]/,"").to_i
+  if id == 0
+    Monster.first(:name => line).id
+  else
+    id
+  end
 end
 
 def import_monsters
   # Pass 1: populate monster data
-  old_database = JSON.parse(File.read("imports/scraped_monsters.json"))
+  old_database = JSON.parse(File.read("data/scraped_monsters.json"))
+  curves = JSON.parse(File.read("data/scraped_xp_curves.json"))
   old_database.each do |id, data|
-    associations = ["evo_chain", "evo_mats"]
-    simple_data = data.delete_if{|k, _| associations.include?(k)}
+    associations = ["evo_chain", "evo_mats", "max_xp"]
+    simple_data = data.select{|k, _| !associations.include?(k)}
     simple_data = simple_data.merge({"id" => id})
+    max_level = data["max_level"]
+    unless max_level == 1
+      max_xp = curves[data["curve"]][max_level.to_s]
+      simple_data = simple_data.merge({"max_xp" => max_xp})
+    end
     Monster.create(simple_data)
   end
 end
 
 def import_monster_associations
   # Pass 2: associations
-  old_database = JSON.parse(File.read("imports/scraped_monsters.json"))
+  old_database = JSON.parse(File.read("data/scraped_monsters.json"))
   old_database.each do |id, data|
     base_monster = Monster.first(:id => id.to_i)
 
@@ -33,6 +45,7 @@ def import_monster_associations
       end
     end
     base_monster.materials = material_ids
+    p material_ids
 
     evolution_chain = data["evo_chain"]
     own_index = evolution_chain.index(base_monster.name) 
@@ -54,13 +67,13 @@ def import_monster_associations
         p "WARNING: Could not find association #{predecessor_name} for monster #{id}" if successor.nil?
         base_monster.evolved = successor.id  unless successor.nil?
       end
-    end   
+    end  
     base_monster.save
   end
 end
 
 def import_users
-  old_database = YAML.load(File.read("imports/pddata.yml"))
+  old_database = YAML.load(File.read("data/pddata.yml"))
   old_database.each do |handle, data|
     known_names = ([handle] + [data[:added_by]]).uniq
     User.create(

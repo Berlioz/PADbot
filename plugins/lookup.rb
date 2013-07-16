@@ -19,6 +19,7 @@ Examples: !pad lookup horus, !pad lookup 200, !pad lookup the enchanter"
 
   def respond(m, args)
     puzzlemon = Monster.fuzzy_search(args)
+    m.reply "Could not find monster #{args}" && return if puzzlemon.nil?
     m.reply generate_monster_entry(puzzlemon)
   end
 end
