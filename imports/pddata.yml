@@ -1,0 +1,133 @@
+---
+asterism:
+  :friend_code: '367,944,265'
+  :added_by: asterism
+  :updated_at: !ruby/object:DateTime 2013-04-10 16:55:51.160310953 -07:00
+mark:
+  :friend_code: '349,044,257'
+  :added_by: miedwards
+  :updated_at: !ruby/object:DateTime 2013-04-10 17:00:06.019278415 -07:00
+seeker:
+  :friend_code: '398,241,258'
+  :added_by: seeker
+  :updated_at: !ruby/object:DateTime 2013-04-10 17:14:37.642452979 -07:00
+ilifin:
+  :friend_code: '316,148,278'
+  :added_by: ilifin
+  :updated_at: !ruby/object:DateTime 2013-04-10 23:14:06.550944195 -07:00
+meowth:
+  :friend_code: '353,940,257'
+  :added_by: meowth1
+  :updated_at: !ruby/object:DateTime 2013-04-10 23:20:54.179566137 -07:00
+zoiks:
+  :friend_code: '339,648,262'
+  :added_by: zoiks
+  :updated_at: !ruby/object:DateTime 2013-04-13 17:45:19.339222254 -07:00
+skimbrel:
+  :friend_code: '330,148,253'
+  :added_by: skimbrel
+  :updated_at: !ruby/object:DateTime 2013-04-15 10:34:04.846060315 -07:00
+rivals:
+  :friend_code: '369,236,292'
+  :added_by: rivals|work
+  :updated_at: !ruby/object:DateTime 2013-04-18 14:48:49.351678611 -07:00
+zhent:
+  :friend_code: '366,734,290'
+  :added_by: zhent
+  :updated_at: !ruby/object:DateTime 2013-04-18 14:49:55.960757670 -07:00
+cathead:
+  :friend_code: '380,430,299'
+  :added_by: cathead
+  :updated_at: !ruby/object:DateTime 2013-04-19 11:30:37.734312189 -07:00
+nudger:
+  :friend_code: '308,546,287'
+  :added_by: nudger
+  :updated_at: !ruby/object:DateTime 2013-04-19 22:32:46.590549093 -07:00
+blackian:
+  :friend_code: '347,844,251'
+  :added_by: blackian
+  :updated_at: !ruby/object:DateTime 2013-04-23 11:46:17.409475483 -07:00
+rohan:
+  :friend_code: '345,749,258'
+  :added_by: riderofrohan0
+  :updated_at: !ruby/object:DateTime 2013-05-09 11:40:50.576281507 -07:00
+whunt:
+  :friend_code: '325,635,299'
+  :added_by: whunt
+  :updated_at: !ruby/object:DateTime 2013-05-09 11:42:51.612166896 -07:00
+bmelts:
+  :friend_code: '332,854,217'
+  :added_by: wmeltsne
+  :updated_at: !ruby/object:DateTime 2013-05-20 12:10:58.615363464 -07:00
+ian:
+  :friend_code: '313,146,247'
+  :added_by: ian
+  :updated_at: !ruby/object:DateTime 2013-05-20 12:16:21.564169727 -07:00
+edilaic:
+  :friend_code: '351,047,252'
+  :added_by: edilaic
+  :updated_at: !ruby/object:DateTime 2013-05-20 17:39:02.419948277 -07:00
+nfogravity:
+  :friend_code: '342,554,205'
+  :added_by: nfogravity
+  :updated_at: !ruby/object:DateTime 2013-05-21 10:23:14.387868975 -07:00
+keht:
+  :friend_code: '309,757,211'
+  :added_by: keht
+  :updated_at: !ruby/object:DateTime 2013-05-21 11:55:52.001088060 -07:00
+jarch3r:
+  :friend_code: '393,147,283'
+  :added_by: jarch3r
+  :updated_at: !ruby/object:DateTime 2013-05-23 00:07:48.891909514 -07:00
+zyrkx:
+  :friend_code: '341,742,283'
+  :added_by: zyrkx
+  :updated_at: !ruby/object:DateTime 2013-05-26 15:39:44.811702943 -07:00
+agent355:
+  :friend_code: '310,158,225'
+  :added_by: jarch3r
+  :updated_at: !ruby/object:DateTime 2013-06-19 17:53:37.703059439 -07:00
+brhh:
+  :friend_code: '332,131,293'
+  :added_by: brhh
+  :updated_at: !ruby/object:DateTime 2013-05-27 23:11:19.111361065 -07:00
+prem:
+  :friend_code: '333,944,247'
+  :added_by: merp
+  :updated_at: !ruby/object:DateTime 2013-05-27 23:12:03.762967364 -07:00
+vilkni:
+  :friend_code: '314,550,229'
+  :added_by: vilkni
+  :updated_at: !ruby/object:DateTime 2013-05-27 23:13:52.452769024 -07:00
+messagemode1:
+  :friend_code: '304,947,203'
+  :added_by: messagemode1
+  :updated_at: !ruby/object:DateTime 2013-05-28 16:30:27.139285587 -07:00
+wesdotcool:
+  :friend_code: '325,635,299'
+  :added_by: wesdotcool
+  :updated_at: !ruby/object:DateTime 2013-06-03 18:06:50.985763161 -07:00
+steggybot:
+  :friend_code: '123,456,789'
+  :added_by: sahn
+  :updated_at: !ruby/object:DateTime 2013-06-12 12:12:09.343575797 -07:00
+jenny:
+  :friend_code: 008,675,309
+  :added_by: delfin
+  :updated_at: !ruby/object:DateTime 2013-06-12 12:12:34.738918618 -07:00
+floppydisk:
+  :friend_code: '316,340,249'
+  :added_by: floppydisk
+  :updated_at: !ruby/object:DateTime 2013-06-13 20:49:52.299553504 -07:00
+adar:
+  :friend_code: '310,542,259'
+  :added_by: adar1
+  :updated_at: !ruby/object:DateTime 2013-06-15 09:21:40.930410969 -07:00
+darkfact:
+  :friend_code: '123,456,789'
+  :added_by: jarch3r
+  :updated_at: !ruby/object:DateTime 2013-06-17 19:32:02.716735006 -07:00
+ians:
+  :friend_code: '313,146,247'
+  :added_by: ians
+  :updated_at: !ruby/object:DateTime 2013-06-19 17:57:43.327654514 -07:00

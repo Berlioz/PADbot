@@ -1,5 +1,6 @@
 require 'data_mapper'
 require 'json'
+require 'yaml'
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
 def extract_material_id(line)
@@ -58,9 +59,23 @@ def import_monster_associations
   end
 end
 
+def import_users
+  old_database = YAML.load(File.read("imports/pddata.yml"))
+  old_database.each do |handle, data|
+    known_names = ([handle] + [data[:added_by]]).uniq
+    User.create(
+      :registered_name => handle,
+      :irc_aliases => known_names,
+      :pad_code => data[:friend_code].gsub(/[^0-9]/,"").to_i,
+      :is_admin => false
+    )
+  end 
+end
+
 config = JSON.parse(File.read("database_config.json"))
 DataMapper.setup(:default, config)
 DataMapper.finalize
 DataMapper.auto_migrate!
 import_monsters
 import_monster_associations
+import_users
