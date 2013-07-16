@@ -45,7 +45,6 @@ def import_monster_associations
       end
     end
     base_monster.materials = material_ids
-    p material_ids
 
     evolution_chain = data["evo_chain"]
     own_index = evolution_chain.index(base_monster.name) 
@@ -92,3 +91,4 @@ DataMapper.auto_migrate!
 import_monsters
 import_monster_associations
 import_users
+binding.pry

@@ -22,4 +22,12 @@ class User
   def to_s
     registered_name
   end
+
+  def group_number
+    Integer(pad_code.to_s.split('')[2]) % 5
+  end
+
+  def group
+    {1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D', 5 => 'E'}[group_number]
+  end
 end
