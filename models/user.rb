@@ -12,7 +12,7 @@ class User
     if user.nil?
       self.all.each do |current|
         if current.irc_aliases.include?(identifier)
-          user = current && break
+          return current
         end
       end
     end
@@ -28,6 +28,6 @@ class User
   end
 
   def group
-    {1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D', 5 => 'E'}[group_number]
+    {0 => 'A', 1 => 'B', 2 => 'C', 3 => 'D', 4 => 'E'}[group_number]
   end
 end

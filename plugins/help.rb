@@ -1,4 +1,4 @@
-class WhoPlugin < PazudoraPluginBase
+class HelpPlugin < PazudoraPluginBase
   def self.aliases
     ['help']
   end

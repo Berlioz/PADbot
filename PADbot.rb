@@ -13,18 +13,27 @@ def initialize_database
   DataMapper.finalize
 end
 
-def initialize_cinch
+def initialize_cinch_bots
   config = JSON.parse(File.read("irc_config.json"))
-  Cinch::Bot.new do
-    configure do |c|
-      c.server = config["server"]
-      c.nick = config["nick"]
-      c.channels = config["channels"]
-      c.plugins.plugins = [Dispatcher]
+  config.map do |server_config|
+    Cinch::Bot.new do
+      configure do |c|
+        c.server = server_config["server"]
+        c.nick = server_config["nick"]
+        c.channels = server_config["channels"]
+        c.plugins.plugins = [Dispatcher]
+      end
     end
   end
 end
 
 initialize_database
-bot = initialize_cinch
-bot.start
+bots = initialize_cinch_bots
+workers = bots.map do |bot|
+  Thread.new do
+    bot.start
+  end
+end
+workers.each do |thread|
+  thread.join
+end 
