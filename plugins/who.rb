@@ -17,3 +17,11 @@ class WhoPlugin < PazudoraPluginBase
     end
   end
 end
+
+class AllPlugin < PazudoraPluginBase
+
+end
+
+class DeletePlugin < PazudoraPluginBase
+
+end

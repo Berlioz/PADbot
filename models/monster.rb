@@ -26,7 +26,10 @@ class Monster
   #integer arrays, since monsters can have multiple materials andultimate evos
   property :unevolved, Object
   property :evolved, Object
-  property :materials, Object 
+  property :materials, Object
+
+  property :rem, Boolean
+  property :pantheon, String
 
   def self.fuzzy_search(identifier)
     if identifier.to_i != 0
