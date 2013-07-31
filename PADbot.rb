@@ -2,6 +2,7 @@ require 'cinch'
 require 'pry'
 require 'data_mapper'
 require 'json'
+require 'yaml'
 require './dispatcher.rb'
 require './plugins/base.rb'
 Dir.glob("plugins/*.rb").each {|x| require_relative x}
@@ -13,9 +14,10 @@ def initialize_database
   DataMapper.finalize
 end
 
-def initialize_cinch_bots
-  config = JSON.parse(File.read("irc_config.json"))
-  config.map do |server_config|
+def initialize_cinch_bots(environment)
+  config = YAML.load(File.read("irc_config.yaml"))
+  selected_config = config[environment]
+  selected_config.map do |server_config|
     Cinch::Bot.new do
       configure do |c|
         c.server = server_config["server"]
@@ -27,8 +29,9 @@ def initialize_cinch_bots
   end
 end
 
+environment = ARGV.first || 'development'
 initialize_database
-bots = initialize_cinch_bots
+bots = initialize_cinch_bots(environment)
 workers = bots.map do |bot|
   Thread.new do
     bot.start

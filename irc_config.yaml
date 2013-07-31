@@ -1,0 +1,6 @@
+---
+development:
+- server: irc.synirc.net
+  nick: asterbot-mk2
+  channels:
+  - ! '#asterbot-staging'
