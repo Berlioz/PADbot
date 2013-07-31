@@ -5,7 +5,7 @@ require 'pry'
 
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
-config = JSON.parse(File.read("database_config.json"))
+config = YAML.load(File.read("database_config.yaml"))
 DataMapper.setup(:default, config)
 DataMapper.finalize
 
