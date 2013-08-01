@@ -6,47 +6,29 @@ require 'nokogiri'
 
 class PDXDailies
   def self.get_dailies(timezone=-8)
-	daily_url = "http://www.puzzledragonx.com/en/option.asp?utc=#{timezone}"
+	daily_url = "http://www.puzzledragonx.com/?utc=#{timezone}"
 
-	@daily_page = Nokogiri::HTML(open(daily_url))
-	event_data = @daily_page.css(".event3")
-	event_rewards = @daily_page.css(".limiteddragon")
+	daily_page = Nokogiri::HTML(open(daily_url))
+	event_data = daily_page.xpath("//table[@id='event']").first
 
-	rewards = self.parse_daily_dungeon_rewards(event_rewards)
-
-	dailies_array = []
-	dailies_array.push(Time.now.strftime "%b %d, %Y")
-
-	hacky_dailies_number = [rewards.length - 1, 3].min # this is NOT optimal and makes some ugly assumptions
-
-	(0..hacky_dailies_number).each do |i|
-	  dailies_array.push('|')
-	  dailies_array.push(rewards[i])
-	  (0..4).each do |j|
-        time = "#{event_data[5 * i + j].text}"
-        hour = time.split(" ")[0].to_i
-        hour = 0 if (hour == 12)
-        hour += 12 if time.split(" ")[1] == "pm"
-        dailies_array.push(hour.to_s.rjust(2,'0'))
+    collector = [[], [], [], [], []]
+    time_rows = event_data.children.select{|e| e.to_s.include?("metaltime")}
+    time_rows.each do |row|
+      times = row.children.map{|c| c.children.to_s} 
+      #times = ["5 pm", "6 pm", "7 pm", "8 pm", "9 pm"]
+      (0..4).each do |i|
+        collector[i] << times[i]
       end
     end
 
-    dailies_array.push("||")
-    dailies_array
+	collector
   end
 
-  def self.parse_daily_dungeon_rewards(daily_page)
-    rewards = daily_page.css(".limiteddragon")
-
-    puzzlemon_numbers = []
-    frame = 0
-    while rewards[frame]
-      reward = rewards[frame].children.first.attributes["src"].value.match(/thumbnail\/(\d+).png/)[1]
-      puzzlemon_numbers << reward
-      frame += 5
-    end
-
-    puzzlemon_numbers.map{|id| Monster.first(:id => id.to_i).name rescue "Unknown" }
+  def self.dungeon_reward
+    daily_url = "http://www.puzzledragonx.com/"
+	daily_page = Nokogiri::HTML(open(daily_url))
+	rewards = daily_page.css(".monstericon")
+    rewards.map{|r| r.children.children.last.attributes["title"].value}.first
   end
 
 end
@@ -67,11 +49,18 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     else
       timezone = -8
     end
-    m.reply(PDXDailies.get_dailies(timezone).join(' '))
+    reward = PDXDailies.dungeon_reward
+    groups = PDXDailies.get_dailies(timezone)
+    rv = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}
+    rv = rv.join(" | ")
+    m.reply "Today's dungeon is #{reward}"
+    m.reply rv
   end
 end
 
 class TopicPlugin < PazudoraPluginBase
+  BORDER = " \u2605 "
+
   def self.helpstring
 "!pad settopic: Changes the topic of this channel to a summary of today's daily dungeon times.
 Uses Pacific time. If it doesn't work, make sure that Asterbot has channel op."
@@ -82,8 +71,18 @@ Uses Pacific time. If it doesn't work, make sure that Asterbot has channel op."
   end
 
   def respond(m, args)	
-    dailies = PDXDailies.get_dailies
-    m.channel.topic = (dailies + m.channel.topic.split(' ').drop((m.channel.topic.split(' ').index("||") || -1) + 1)).join(' ')
+    reward = PDXDailies.dungeon_reward
+    groups = PDXDailies.get_dailies(-8)
+    report = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}.join(" | ")
+    report = "[#{reward}] " + report
+    if m.channel.topic.include?(BORDER)
+      saved_topic = m.channel.topic.split(BORDER)[0..-2].join(BORDER)
+      p "Attempting to set topic to #{saved_topic + BORDER + report}"
+      m.channel.topic = saved_topic + BORDER + report
+    else
+      p "Attempting to set topic to #{m.channel.topic + BORDER + report}"
+      m.channel.topic = m.channel.topic + BORDER + report
+    end
   end
 end
 
@@ -98,6 +97,8 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
   end
 
   def respond(m, args)
+    m.reply "PAD when has not been updated for the new PDX front page yet."
+
     if args
       timezone = args.to_i      
     else

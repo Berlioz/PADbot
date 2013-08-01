@@ -4,3 +4,13 @@ development:
   nick: asterbot-mk2
   channels:
   - ! '#asterbot-staging'
+production:
+- server: irc.freenode.org
+  nick: asterbot-kai
+  channels:
+  - ! '#csuapad'
+- server: irc.synirc.net
+  nick: asterbot-mk2
+  channels:
+  - ! '#pad'
+  - ! '#padgoons'
