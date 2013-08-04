@@ -110,7 +110,6 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     #example: ["10 am", "3 pm", "8 pm"]
     daily_times = dailies_array[group_num]
 
-    daily_times = ["5 pm", "7 pm", "9 pm"]
     result = ["Upcoming Dailies for Group #{(group_num + 65).chr}"]
     daily_times.each do |time_as_string|
       hour, am_or_pm = time_as_string.split
