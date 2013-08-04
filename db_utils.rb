@@ -2,6 +2,8 @@ require 'data_mapper'
 require 'json'
 require 'yaml'
 require 'pry'
+require 'nokogiri'
+require 'open-uri'
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
 def import_model(model_class)
@@ -21,8 +23,8 @@ def dump_model(model_class)
   outfile.write(collector.to_json)
 end
 
-def import
-  DataMapper.auto_migrate!
+def import(destructive)
+  DataMapper.auto_migrate! if destructive
   import_model(Monster)
   import_model(User)
 end
@@ -49,7 +51,9 @@ if command.nil?
 else
   case command
     when 'import'
-      import
+      import(true)
+    when 'append'
+      import(false)
     when 'export'
       export
     when 'console'
