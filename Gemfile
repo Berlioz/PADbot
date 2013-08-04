@@ -19,3 +19,6 @@ gem 'calc'
 gem 'distribution'
 gem 'gist'
 gem 'bitly'
+
+#Dev stuff
+gem 'debugger'
