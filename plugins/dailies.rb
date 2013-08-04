@@ -11,15 +11,15 @@ class PDXDailies
 	daily_page = Nokogiri::HTML(open(daily_url))
 	event_data = daily_page.xpath("//table[@id='event']").first
 
-    collector = [[], [], [], [], []]
-    time_rows = event_data.children.select{|e| e.to_s.include?("metaltime")}
-    time_rows.each do |row|
-      times = row.children.map{|c| c.children.to_s} 
-      #times = ["5 pm", "6 pm", "7 pm", "8 pm", "9 pm"]
-      (0..4).each do |i|
-        collector[i] << times[i]
-      end
+  collector = [[], [], [], [], []]
+  time_rows = event_data.children.select{|e| e.to_s.include?("metaltime")}
+  time_rows.each do |row|
+    times = row.children.map{|c| c.children.to_s} 
+    #times = ["5 pm", "6 pm", "7 pm", "8 pm", "9 pm"]
+    (0..4).each do |i|
+      collector[i] << times[i]
     end
+  end
 
 	collector
   end
@@ -97,35 +97,42 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
   end
 
   def respond(m, args)
-    m.reply "PAD when has not been updated for the new PDX front page yet."
-
     if args
       timezone = args.to_i      
     else
       timezone = -8
     end
     user = User.fuzzy_lookup(m.user.nick)
-    group_num = user.group_number
+    group_num = user ? user.group_number : 0
  
     dailies_array = PDXDailies.get_dailies(timezone)
-    minutes_since_midnight = ((Time.now.to_i - 7*60*60) % 86400)/60
-    when_array = [dailies_array[0], "Group", (group_num + 65).chr, dailies_array[1]]
-    i = 2
-    while dailies_array[i]
-      when_array += [dailies_array[i]]
-      until_event = 60*dailies_array[i+group_num+1].to_i - minutes_since_midnight
-      if until_event > 0
-        when_array += "(in #{until_event / 60}:#{(until_event % 60).to_s.rjust(2,'0')}, #{until_event / 10} stamina)"
-      elsif until_event > -60
-        when_array += ["(now! for #{until_event+60} minutes)"]
-      else
-        when_array += ["(done)"]
-      end
+    
+    #example: ["10 am", "3 pm", "8 pm"]
+    daily_times = dailies_array[group_num]
 
-      when_array += ["|"]
-      i += 7
+    result = ["Upcoming Dailies for Group #{(group_num + 65).chr}"]
+    daily_times.each do |time_as_string|
+      hour, am_or_pm = time_as_string.split
+      hour = hour.to_i
+      hour += 12 if am_or_pm == "pm"
+      
+      #Note that Time tracks seconds, so need to convert all numbers to/from seconds.
+      start_time = Date.today.to_time + hour * 60 * 60
+      minutes_until_start = ((start_time - Time.now)/60).to_i
+      
+      #Hasn't begun yet
+      if minutes_until_start > 0
+        result << "(in #{minutes_until_start/60}:#{(minutes_until_start % 60).to_s.rjust(2,'0')}, #{minutes_until_start / 10} stamina)"
+      else
+        #Currently ongoing
+        if minutes_until_start > -60
+          result << "(now! for #{minutes_until_start+60} minutes)"
+        end
+      end
+      
     end
-    when_array.pop
-    m.reply(when_array.join(' '))
+    
+    m.reply(result.join(' | '))
+    
   end
 end

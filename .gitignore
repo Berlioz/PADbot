@@ -17,3 +17,4 @@ irc_config.yaml
 .yardoc
 _yardoc
 doc/
+*~

@@ -11,6 +11,7 @@ GEM
     calc (1.0.0)
     cinch (2.0.5)
     coderay (1.0.9)
+    columnize (0.3.6)
     data_mapper (1.2.0)
       dm-aggregates (~> 1.2.0)
       dm-constraints (~> 1.2.0)
@@ -23,6 +24,12 @@ GEM
       dm-validations (~> 1.2.0)
     data_objects (0.10.13)
       addressable (~> 2.1)
+    debugger (1.5.0)
+      columnize (>= 0.3.1)
+      debugger-linecache (~> 1.2.0)
+      debugger-ruby_core_source (~> 1.2.0)
+    debugger-linecache (1.2.0)
+    debugger-ruby_core_source (1.2.0)
     diff-lcs (1.2.4)
     distribution (0.7.0)
     dm-aggregates (1.2.0)
@@ -113,6 +120,7 @@ DEPENDENCIES
   calc
   cinch
   data_mapper
+  debugger
   distribution
   dm-postgres-adapter
   gist
