@@ -109,10 +109,7 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     
     #example: ["10 am", "3 pm", "8 pm"]
     daily_times = dailies_array[group_num]
-    
-    #Subtracting times gives their difference in seconds.
-    minutes_since_midnight = ((Time.now - Date.today.to_time)/60).to_i
-    
+
     daily_times = ["5 pm", "7 pm", "9 pm"]
     result = ["Upcoming Dailies for Group #{(group_num + 65).chr}"]
     daily_times.each do |time_as_string|
@@ -120,6 +117,7 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
       hour = hour.to_i
       hour += 12 if am_or_pm == "pm"
       
+      #Note that Time tracks seconds, so need to convert all numbers to/from seconds.
       start_time = Date.today.to_time + hour * 60 * 60
       minutes_until_start = ((start_time - Time.now)/60).to_i
       
