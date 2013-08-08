@@ -9,7 +9,6 @@ class PDXDailies
 
 	daily_page = Nokogiri::HTML(open(daily_url))
 	event_data = daily_page.xpath("//table[@id='event']").first
-
   collector = [[], [], [], [], []]
   time_rows = event_data.children.select{|e| e.to_s.include?("metaltime")}
   time_rows.each do |row|

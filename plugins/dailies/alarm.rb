@@ -1,19 +1,21 @@
 require 'timers'
 
 class DailyAlarmPlugin < PazudoraPluginBase
+  
   def self.helpstring
 "!pad clockme, clockup: Sets timers for each daily, and adds users to be PMed for their group when it begins."
   end
 
   def self.aliases
-    ['clockup', 'clockme']
+    ['clockup', 'clockme', 'clockdown']
   end
 
-  def respond(m, args)
-    if !@alarm
-      m.reply "Starting alarms."
-      initialize_alarm(m.channel)
-    end
+  dispatch :clockup, :to => :clockup
+  dispatch :clockme, :to => :clockme
+  dispatch :clockdown, :to => :clockdown
+
+  def clockme(m, args)
+    initialize_alarm(m.channel) unless @alarm
     
     user = User.fuzzy_lookup(m.user.nick)
     if user
@@ -30,7 +32,24 @@ class DailyAlarmPlugin < PazudoraPluginBase
     end
   end
   
+  def clockup(m, args)
+    initialize_alarm(m.channel) unless @alarm
+
+    unless @started
+      @started = true
+      @alarm.start_clocks
+    end
+  end
+  
+  def clockdown(m, args)
+    m.reply "User #{m.user.nick} has killed the clocks."
+    @alarm.kill_clocks
+    @alarm = nil
+    @started = false
+  end
+  
   def initialize_alarm(channel)
+    channel.send "Starting alarms."
     @alarm ||= DailyAlarm.new(channel)
     @started ||= false
   end
@@ -75,6 +94,12 @@ class DailyAlarm
       end
       sleep @timers.wait_interval
       @timers.fire
+    end
+  end
+  
+  def kill_clocks
+    @timers.each do |t|
+      @timers.cancel t
     end
   end
 end
