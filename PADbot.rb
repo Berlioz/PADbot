@@ -7,7 +7,9 @@ require 'yaml'
 require './dispatcher.rb'
 require './plugins/base.rb'
 Dir.glob("plugins/*.rb").each {|x| require_relative x}
+Dir.glob("plugins/*/*.rb").each {|x| require_relative x}
 Dir.glob("models/*.rb").each {|x| require_relative x}
+
 
 def initialize_database
   config = YAML.load(File.read("database_config.yaml"))

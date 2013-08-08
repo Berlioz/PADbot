@@ -3,7 +3,8 @@ require 'singleton'
 
 class PazudoraPluginBase
   include Singleton
-
+  @@commands = {}
+  
   def self.descendants
     ObjectSpace.each_object(Class).select {|klass| klass < self}
   end
@@ -15,9 +16,19 @@ class PazudoraPluginBase
   def self.aliases
     []
   end
+     
+  def self.dispatch(command, opts={})
+    @@commands[command.to_sym] = opts[:to].to_sym if opts[:to]
+  end
 
   def respond(m, args)
-    raise NotImplementedError.new("You must implement #{__method__}")
+    #m.params = ["#csuatest", "!stupidpuzzledragonbullshit command and args"]
+    command = m.params.last.split[1].to_sym
+    if @@commands[command]
+      send(@@commands[command].to_sym, m, args)
+    else
+      raise NotImplementedError.new("You must implement #{__method__}")
+    end
   end
 
   def with_authorized_irc_handle(m, args, &block)
