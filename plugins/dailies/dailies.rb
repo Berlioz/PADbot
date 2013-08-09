@@ -31,6 +31,7 @@ end
 
 class TopicPlugin < PazudoraPluginBase
   BORDER = " \u2605 "
+  DAYS = {1 => 'M', 2 => 'Tu', 3 => 'W', 4 => 'Th', 5 => 'F', 6 => 'Sa', 7 => 'Su'}
 
   def self.helpstring
 "!pad settopic: Changes the topic of this channel to a summary of today's daily dungeon times.
@@ -45,7 +46,7 @@ Uses Pacific time. If it doesn't work, make sure that Asterbot has channel op."
     reward = PDXDailies.dungeon_reward
     groups = PDXDailies.get_dailies(-8)
     report = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}.join(" | ")
-    report = "[#{reward}] " + report
+    report = "[#{reward}] " + report + " | #{DAYS[Time.now.wday]} #{Time.now.month}/#{Time.now.day} PST (-8)"
     if m.channel.topic.include?(BORDER)
       saved_topic = m.channel.topic.split(BORDER)[0..-2].join(BORDER)
       p "Attempting to set topic to #{saved_topic + BORDER + report}"
@@ -81,9 +82,9 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     #example: ["10 am", "3 pm", "8 pm"]
     daily_times = dailies_array[group_num]
 
-    result = ["Upcoming Dailies for Group #{(group_num + 65).chr}"]
+    result = ["Group #{(group_num + 65).chr}: #{PDXDailies.dungeon_reward}"]
     daily_times.each do |time_as_string|
-      start_time = PXDDailies.string_to_time_as_seconds(time_as_string)
+      start_time = PDXDailies.string_to_time_as_seconds(time_as_string)
 
       minutes_until_start = ((start_time - Time.now)/60).to_i
       
