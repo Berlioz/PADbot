@@ -20,6 +20,3 @@ gem 'distribution'
 gem 'gist'
 gem 'bitly'
 gem 'timers'
-
-#Dev stuff
-gem 'debugger'

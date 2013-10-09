@@ -1,6 +1,6 @@
 require 'cinch'
 require 'pry'
-require 'debugger'
+#require 'debugger'
 require 'data_mapper'
 require 'json'
 require 'yaml'
