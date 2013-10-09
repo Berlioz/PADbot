@@ -115,6 +115,11 @@ class Puzzlemon
     [siblings[1].text.to_i, siblings[2].text.to_i]
   end
 
+  def awakenings
+    nodes = @doc.xpath("//td[@class='awoken2']")
+    nodes.map{|n| n.children.first.children.last.children.to_s}
+  end
+
   def skill
     link = @doc.xpath("//a").select{|link| link.attributes["href"] && link.attributes["href"].
         value.match(/\Askill.asp?/)}.first
@@ -229,13 +234,27 @@ def exp_curve(pdx)
   out
 end
 
-def scrape_monster(n)
+def update_book
+  Monster.all.each do |m|
+    p "updating #{m.name}..."
+    scrape_monster(m.id, :update)
+  end
+end
+
+def new_monsters
+  data = open("http://www.puzzledragonx.com/en/monsterbook.asp").read
+  all_ids = data.scan(/monster.asp\?n=(\d+)/).flatten.map(&:to_i)
+  all_ids.select{|id| Monster.get(id).nil?}
+end
+
+def scrape_monster(n, mode = :create)
   pdx = Puzzlemon.new(n.to_s)
     name = pdx.name
     max_level = pdx.max_level
     max_xp = pdx.max_xp.to_i
     skill_text = pdx.skill
     leader_text = pdx.leaderskill
+    awakenings = pdx.awakenings
     stars = pdx.stars
     element = pdx.element
     cost = pdx.cost.to_i
@@ -258,6 +277,7 @@ def scrape_monster(n)
       :max_xp => max_xp,
       :skill_text => skill_text,
       :leader_text => leader_text,
+      :awakenings => awakenings,
       :stars => stars,
       :element => element,
       :cost => cost,
@@ -277,9 +297,20 @@ def scrape_monster(n)
     out[:materials] = out[:materials].map{|s| s.gsub(/[^0-9]/,"").to_i}
     chain = out[:evo_chain]
     own_index = chain.index(n)
-    out[:unevolved] = own_index == 0 ? nil : chain[own_index - 1] 
-    out[:evolved] = own_index == chain.length - 1 ? nil : chain[own_index + 1]
-    Monster.create!(out.delete_if{|k,v| k == :evo_chain})
+    out[:unevolved] = own_index == 0 ? nil : chain[own_index - 1] unless own_index.nil?
+    out[:evolved] = own_index == chain.length - 1 ? nil : chain[own_index + 1] unless own_index.nil?
+    data = out.delete_if{|k,v| k == :evo_chain}
+    case mode
+      when :create
+        Monster.create!(data)
+      when :update
+        binding.pry
+        m = Monster.get(n)
+        m.update!(data)
+      when :test
+        #noop
+    end
+    out
 end
 
 config = YAML.load(File.read("database_config.yaml"))

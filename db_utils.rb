@@ -9,9 +9,12 @@ Dir.glob("models/*.rb").each {|x| require_relative x}
 def import_model(model_class)
   infile = File.new("dumped_#{model_class.to_s.downcase}.json")
   json_data = JSON.parse(infile.read)
+  count = 0
   json_data.each do |row|
+    count += 1
     model_class.create(row)
   end
+  p "Importer #{count} instances of #{model_class}"
 end
 
 def dump_model(model_class)
@@ -26,7 +29,7 @@ end
 def import(destructive)
   DataMapper.auto_migrate! if destructive
   import_model(Monster)
-  import_model(User)
+  #import_model(User)
 end
 
 def export

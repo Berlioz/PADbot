@@ -9,6 +9,7 @@ class Monster
   property :max_xp, Integer
   property :skill_text, Text
   property :leader_text, Text
+  property :awakenings, Object
   property :stars, Integer
   property :element, String
   property :cost, Integer
