@@ -11,7 +11,7 @@ class User
     user = self.first(:registered_name => identifier)
     if user.nil?
       self.all.each do |current|
-        if current.irc_aliases.include?(identifier)
+        if current.irc_aliases.map(&:downcase).include?(identifier.downcase)
           return current
         end
       end
