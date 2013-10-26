@@ -29,7 +29,7 @@ end
 def import(destructive)
   DataMapper.auto_migrate! if destructive
   import_model(Monster)
-  #import_model(User)
+  import_model(User)
 end
 
 def export

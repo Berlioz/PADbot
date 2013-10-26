@@ -177,7 +177,7 @@ class GachaPlugin < PazudoraPluginBase
         monster = @gachapon_simulator.roll(godfest_flags)
         break if !regex && (monster.name.downcase.include?(identifier) || monster.id == identifier)
         break if regex && (monster.name.downcase.match(identifier) || monster.name.match(identifier))
-        m.reply("Unable to roll #{identifier}") and return if attempts == 10000
+        m.reply("Unable to roll #{identifier}") and return if attempts == 1000
       end
       price = stone_price(attempts * 5)
       m.reply("After #{attempts} attempts, you rolled a #{monster.name}. (There goes $#{price})")

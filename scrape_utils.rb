@@ -97,7 +97,7 @@ class Puzzlemon
   def max_xp
     match = @doc.to_s.scan(/((\d|,)+) Exp to max/)
     begin
-      return match[0][0]
+      return match[0][0].tr(',','').to_i
     rescue NoMethodError
       return 0
     end
@@ -230,13 +230,12 @@ def exp_curve(pdx)
     curve_link = links.select{|link| link.value.include?("experiencechart")}.first
     return nil if curve_link.nil?
     out = curve_link.value.scan(/.*?(\d+).*?/).first.first
-    p out
   out
 end
 
 def update_book
   Monster.all.each do |m|
-    p "updating #{m.name}..."
+    p "updating ##{m.id} #{m.name}..."
     scrape_monster(m.id, :update)
   end
 end
@@ -304,7 +303,6 @@ def scrape_monster(n, mode = :create)
       when :create
         Monster.create!(data)
       when :update
-        binding.pry
         m = Monster.get(n)
         m.update!(data)
       when :test
