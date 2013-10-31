@@ -151,7 +151,8 @@ class Puzzlemon
     index = lines.index("Leader Skill:#{name}")
     if lines[index + 2]
       effect = lines[index + 2].tr(')', '').tr('(', '')
-    else
+    end
+    if effect.nil? || effect == ""
       effect = lines[index + 1].split(":").last
     end
 
@@ -233,10 +234,15 @@ def exp_curve(pdx)
   out
 end
 
-def update_book
+def update_book(start = 0)
   Monster.all.each do |m|
+    next unless m.id > start
     p "updating ##{m.id} #{m.name}..."
-    scrape_monster(m.id, :update)
+    begin
+      scrape_monster(m.id, :update)
+    rescue ArgumentError => e
+      p "ERROR updating! #{e.message}"
+    end
   end
 end
 
