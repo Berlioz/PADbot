@@ -33,26 +33,25 @@ class Monster
   property :pantheon, String
 
   def self.fuzzy_search(identifier)
-    if identifier.to_i != 0
+    if identifier =~ /\A\d+\z/
       id = identifier.to_i
       self.first(:id => id)
     else
-      prefix, identfier = prefix_split(identifier)
-
-      match = substring_search(identifier)
+      prefix, identifier_t = prefix_split(identifier)
+      match = substring_search(identifier_t)
       if match.nil?
-        match = edit_distance_search(identifier)
+        match = edit_distance_search(identifier_t)
       end
       if match && prefix
         match = apply_prefix(prefix, match)
       end
-
       match
     end
   end
 
   def self.prefix_split(identifier)
-    test, remainder = identifier.split(' ', 2)
+    test = identifier.split(' ', 2).first
+    remainder = identifier.split(' ', 2).last
     if test =~ /\A\d\*\z/ || test.downcase == "evolved" || test.downcase == "base"
       return test,remainder
     else
@@ -66,19 +65,19 @@ class Monster
       target = prefix.to_i
       while current_monster.stars != target
         if current_monster.stars < target
-          current_monster = current_monster.get_unevolved
+          current_monster = current_monster.get_evolved
         else
-          current_monster = current_monster.get_evolved 
+          current_monster = current_monster.get_unevolved 
         end
         return monster if current_monster.nil?
       end
       return current_monster
-    elsif test.downcase == "evolved"
+    elsif prefix.downcase == "evolved"
       while current_monster.get_evolved
         current_monster = current_monster.get_evolved
       end
       return current_monster  
-    elsif test.downcase == "base"
+    elsif prefix.downcase == "base"
       while current_monster.get_unevolved
         current_monster = current_monster.get_unevolved
       end
