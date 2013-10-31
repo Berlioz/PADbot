@@ -37,12 +37,54 @@ class Monster
       id = identifier.to_i
       self.first(:id => id)
     else
+      prefix, identfier = prefix_split(identifier)
+
       match = substring_search(identifier)
       if match.nil?
-        edit_distance_search(identifier)
-      else
-        match
+        match = edit_distance_search(identifier)
       end
+      if match && prefix
+        match = apply_prefix(prefix, match)
+      end
+
+      match
+    end
+  end
+
+  def self.prefix_split(identifier)
+    test, remainder = identifier.split(' ', 2)
+    if test =~ /\A\d\*\z/ || test.downcase == "evolved" || test.downcase == "base"
+      return test,remainder
+    else
+      return nil, identifier
+    end
+  end
+
+  def self.apply_prefix(prefix, monster)
+    current_monster = monster
+    if prefix =~ /\A\d\*\z/
+      target = prefix.to_i
+      while current_monster.stars != target
+        if current_monster.stars < target
+          current_monster = current_monster.get_unevolved
+        else
+          current_monster = current_monster.get_evolved 
+        end
+        return monster if current_monster.nil?
+      end
+      return current_monster
+    elsif test.downcase == "evolved"
+      while current_monster.get_evolved
+        current_monster = current_monster.get_evolved
+      end
+      return current_monster  
+    elsif test.downcase == "base"
+      while current_monster.get_unevolved
+        current_monster = current_monster.get_unevolved
+      end
+      return current_monster 
+    else
+      monster
     end
   end
 
@@ -61,6 +103,14 @@ class Monster
     choice = names[names.map{|current| Levenshtein.distance(identifier.downcase, current.downcase)}.each_with_index.min.last]
     return nil if Levenshtein.distance(identifier.downcase, choice.downcase) > limit
     self.first(:name => choice)
+  end
+
+  def get_evolved
+    evolved == nil? nil : Monster.get(evolved)
+  end
+
+  def get_unevolved
+    unevolved == nil ? nil : Monster.get(unevolved)
   end
 
   def to_s
