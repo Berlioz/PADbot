@@ -106,7 +106,7 @@ class Monster
   end
 
   def get_evolved
-    evolved == nil? nil : Monster.get(evolved)
+    evolved == nil ? nil : Monster.get(evolved)
   end
 
   def get_unevolved
