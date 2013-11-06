@@ -1,10 +1,10 @@
 class BatremPlugin < PazudoraPluginBase
   def self.aliases
-    ["batREM", "batman", "batroll"]
+    ["batrem", "batREM", "batman", "batroll"]
   end
 
   def self.helpstring
-"!pad batREM: Simulates a roll from the Batman collab machine."
+"!pad batroll: Simulates a roll from the Batman collab machine."
   end
 
   def respond(m, args)

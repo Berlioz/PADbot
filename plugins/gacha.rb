@@ -112,16 +112,20 @@ class GachaPlugin < PazudoraPluginBase
 
     if args == "tags" || args == "list_tags"
       r = "Use +[tags] to denote godfest; for example !pad pull +JGO for a japanese/greek/odins fest.\n"
-      r += "Known tags: [R]oman, [J]apanese,  [I]ndian, [N]orse, [E]gyptian, [G]reek, [O]dins, [A]ngels, [D]evils, [C]hinese, [M]etatrons"
+      r += "Known tags: [R]oman, [J]apanese, Japanese[2], [I]ndian, [N]orse, [E]gyptian, [G]reek, [O]dins, [A]ngels, [D]evils, [C]hinese, [M]etatrons"
       m.reply r
     elsif args.to_i != 0
       gods = []
+      if args.to_i > 100
+        m.reply "Not doing >100 rolls at once; apparently you jackasses can't have nice things."
+        return
+      end
       args.to_i.times do
         monster = @gachapon_simulator.roll(godfest_flags)
         stars = monster.stars
         type = monster.type
         name = monster.name
-        if stars >= 5 && type == "god" && !monster.name.include?("Verche")
+        if monster.pantheon
           gods << monster.name
         end
       end
