@@ -9,9 +9,10 @@ class User
 
   def self.fuzzy_lookup(identifier)
     user = self.first(:registered_name => identifier)
+
     if user.nil?
       self.all.each do |current|
-        if current.irc_aliases.map(&:downcase).include?(identifier.downcase)
+        if (current.irc_aliases.map(&:downcase) + [current.registered_name.downcase]).include?(identifier.downcase)
           return current
         end
       end
