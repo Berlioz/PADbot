@@ -20,12 +20,16 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     else
       timezone = -8
     end
-    reward = PDXDailies.dungeon_reward
-    groups = PDXDailies.get_dailies(timezone)
+    reward = WikiaDailies.dungeon_reward
+    groups = WikiaDailies.get_dailies(timezone)
     rv = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}
     rv = rv.join(" | ")
     m.reply "Today's dungeon is #{reward}"
     m.reply rv
+    specials = WikiaDailies.specials
+    if specials.count > 0
+      m.reply "Special dungeon(s): #{specials.join(', ')}"
+    end
   end
 end
 
@@ -43,8 +47,8 @@ Uses Pacific time. If it doesn't work, make sure that Asterbot has channel op."
   end
 
   def respond(m, args)	
-    reward = PDXDailies.dungeon_reward
-    groups = PDXDailies.get_dailies(-8)
+    reward = WikiaDailies.dungeon_reward
+    groups = WikiaDailies.get_dailies(-8)
     report = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}.join(" | ")
     report = "[#{reward}] " + report + " | #{DAYS[Time.now.wday]} #{Time.now.month}/#{Time.now.day} PST (-8)"
     if m.channel.topic.include?(BORDER)

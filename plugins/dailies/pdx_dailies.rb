@@ -1,8 +1,65 @@
-# Based off the Asterbot mk.1 module by nfogravity
-
 require 'open-uri'
 require 'nokogiri'
 
+# TODO: Wait until stable, ditch PDXDailies altoghether, move to stateful parse
+class WikiaDailies
+  def self.today
+    "#{Date.today.month}/#{Date.today.day}"
+  end
+
+  def self.specials
+    wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
+    table = wikia.xpath("//table[@id='dailyEvents']").first
+    today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
+    rows_to_read = today_header.attributes["rowspan"].value.to_i
+    starting_index = table.children.index(today_header.parent)
+    rows = table.slice(starting_index, rows_to_read)
+
+    specials = []
+    rows.each do |row|
+      unless row.scan(/\d\d:\d\d/).count == 5
+        link = row.children.last.children.first
+        specials << link.attributes["title"].value  
+      end
+    end
+    specials
+  end
+
+  def self.dungeon_reward
+    wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
+    table = wikia.xpath("//table[@id='dailyEvents']").first
+    today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
+    rows_to_read = today_header.attributes["rowspan"].value.to_i
+    starting_index = table.children.index(today_header.parent)
+    rows = table.slice(starting_index, rows_to_read)
+
+    rows.each do |row|
+      return row.children.first.children.first.attributes["title"].value  
+    end
+    return ""
+  end
+
+  def self.get_dailies(timezone = -8)
+    wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
+    table = wikia.xpath("//table[@id='dailyEvents']").first
+    today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
+    rows_to_read = today_header.attributes["rowspan"].value.to_i
+    starting_index = table.children.index(today_header.parent)
+    rows = table.slice(starting_index, rows_to_read)
+
+    collector = [[],[],[],[],[]]
+    rows.each do |row|
+      if row.scan(/\d\d:\d\d/).count == 5
+        (0..4).each do |i|
+          collector[i] << row.scan(/\d\d:\d\d/)[i]
+        end
+      end
+    end
+    collector
+  end
+end
+
+# Based off the Asterbot mk.1 module by nfogravity
 class PDXDailies
   def self.get_dailies(timezone=-8)
 	daily_url = "http://www.puzzledragonx.com/?utc=#{timezone}"
