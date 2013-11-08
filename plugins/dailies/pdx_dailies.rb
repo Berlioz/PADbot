@@ -13,11 +13,11 @@ class WikiaDailies
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
     rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
-    rows = table.slice(starting_index, rows_to_read)
+    rows = table.children.slice(starting_index, rows_to_read)
 
     specials = []
     rows.each do |row|
-      unless row.scan(/\d\d:\d\d/).count == 5
+      unless row.to_s.scan(/\d\d:\d\d/).count == 5
         link = row.children.last.children.first
         specials << link.attributes["title"].value  
       end
@@ -31,10 +31,12 @@ class WikiaDailies
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
     rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
-    rows = table.slice(starting_index, rows_to_read)
+    rows = table.children.slice(starting_index, rows_to_read)
 
     rows.each do |row|
-      return row.children.first.children.first.attributes["title"].value  
+      if row.to_s.scan(/\d\d:\d\d/).count == 5 
+        return row.children.first.children.first.attributes["title"].value 
+      end
     end
     return ""
   end
@@ -45,17 +47,23 @@ class WikiaDailies
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
     rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
-    rows = table.slice(starting_index, rows_to_read)
+    rows = table.children.slice(starting_index, rows_to_read)
 
     collector = [[],[],[],[],[]]
     rows.each do |row|
-      if row.scan(/\d\d:\d\d/).count == 5
+      if row.to_s.scan(/\d\d:\d\d/).count == 5
         (0..4).each do |i|
-          collector[i] << row.scan(/\d\d:\d\d/)[i]
+          collector[i] << row.to_s.scan(/\d\d:\d\d/)[i]
         end
       end
     end
     collector
+  end
+
+  #Converts "3 pm" or "5 am" to the corresponding time object (local time to bot)
+  def self.string_to_time_as_seconds(time_as_string)
+    hour, minute = time_as_string.split(":")
+    Date.today.to_time + hour.to_i * 60 * 60
   end
 end
 
@@ -100,3 +108,5 @@ class PDXDailies
   end
 
 end
+require 'pry'
+binding.pry
