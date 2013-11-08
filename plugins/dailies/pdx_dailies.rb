@@ -53,7 +53,7 @@ class WikiaDailies
     rows.each do |row|
       if row.to_s.scan(/\d\d:\d\d/).count == 5
         (0..4).each do |i|
-          collector[i] << row.to_s.scan(/\d\d:\d\d/)[i]
+          collector[i] << row.to_s.scan(/\d\d:\d\d/)[i].split(":").first
         end
       end
     end
@@ -62,7 +62,7 @@ class WikiaDailies
 
   #Converts "3 pm" or "5 am" to the corresponding time object (local time to bot)
   def self.string_to_time_as_seconds(time_as_string)
-    hour, minute = time_as_string.split(":")
+    hour = time_as_string.split(":").first
     Date.today.to_time + hour.to_i * 60 * 60
   end
 end
