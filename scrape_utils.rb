@@ -206,7 +206,7 @@ def mats(pdx)
 
   # Compute the location of the current puzzlemon in the chain
   requirements = info.xpath("//td[@class='require']")
-  busty_requirements = info.xpath("//td[@class='finalevolve']")
+  busty_requirements = info.xpath("//td[@class='finalevolve nowrap']")
   ultimate_count = busty_requirements.count
   index = chain_members.index(pdx.id)
 
@@ -299,6 +299,7 @@ def scrape_monster(n, mode = :create)
       :materials => evo_mats,
       :curve => curve
     }
+    out[:masterials] = out[:materials].first if out[:materials].first.is_a? Array
     out[:materials] = out[:materials].map{|s| s.gsub(/[^0-9]/,"").to_i}
     chain = out[:evo_chain]
     own_index = chain.index(n)
