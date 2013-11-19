@@ -12,7 +12,7 @@ class Rank
   property :exp_total, Integer
   property :exp_next, Integer
 
-  def scrape_from_pdx!
+  def self.scrape_from_pdx!
     ranks = Nokogiri::HTML.parse(open(RANK_TABLE_URL).read)
     rows = ranks.xpath("//tr").select{|a| a.children.first.to_s.include? "class=\"blue"}
     rows[1..-1].each do |row|
@@ -30,6 +30,5 @@ class Rank
                    exp_next:exp_next}
       self.first_or_create(:id => level).update(attributes)
     end
-    rv
   end
 end
