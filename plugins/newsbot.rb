@@ -7,8 +7,6 @@ class NewsPlugin < PazudoraPluginBase
 
   def initialize
     super
-    @last_headline = get_log.last
-    p @last_headline
   end
 
   def self.aliases
@@ -21,20 +19,25 @@ class NewsPlugin < PazudoraPluginBase
   end
 
   def tick(current_time, channels)
-    parse_pdx
-    if @last_headline[:headline] != get_log.last[:headline]
-      @last_headline = get_log.last
-      registered = registered_users
-      targets = []
-      channels.each do |channel|
-        channel.users.keys.each do |u|
-          if registered.include?(User.fuzzy_lookup(u.nick))
-            targets << u unless targets.include? u
+    @@last_pinged_at ||= {}
+    puts "*****"
+    puts @@last_pinged_at
+    channels.each do |channel|
+      if @@last_pinged_at[channel.name]
+        parse_pdx
+        if get_log.last[:time].to_i > @@last_pinged_at[channel.name]
+          targets = []
+          channel.users.keys.each do |u|
+            if registered.include?(User.fuzzy_lookup(u.nick))
+              targets << u unless targets.include? u
+            end
           end
+          channel.send("PDX has hosted a new headline: #{get_log.last[:headline]}")
+          channel.send('^ ' + targets.map(&:nick).join(', '))
         end
-      end
-      targets.each do |u|
-        u.send "PDX has hosted a new headline: #{get_log.last[:headline]}"
+        @@last_pinged_at[channel.name] = current_time.to_i
+      else
+        @@last_pinged_at[channel.name] = current_time.to_i
       end
     end
   end
