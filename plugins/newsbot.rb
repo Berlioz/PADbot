@@ -13,13 +13,31 @@ class NewsPlugin < PazudoraPluginBase
     "!pad news: displays last known news bulletin from PDX"
   end
 
-  def tick(current_time)
-    p "fwee"
+  def tick(current_time, channels)
+    last_headline = get_log.last
+    parse_pdx
+    binding.pry
+    if last_headline[:headline] != get_log.last[:headline]
+      registered = registered_users
+      channels.each do |channel|
+        channel.users.each do |u|
+          if registered.include?(User.fuzzy_lookup(u.nick))
+            u.send "PDX has posted a new headline: #{get_log.last[:headline]}"
+          end
+        end
+      end
+    end
   end
 
   def respond(m,args)
     if args == "parse"
-
+      parse_pdx
+      m.reply "Done!"
+    if args == "register"
+      user = User.fuzzy_lookup(m.user.nick)
+      m.reply "You're not registered with Asterbot" and return unless user
+      user.add_plugin_registration(NewsPlugin)
+      m.reply "OK, registered."
     elsif args.to_i > 0
       n = args.to_i
       all_news = get_log

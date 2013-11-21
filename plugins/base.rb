@@ -31,6 +31,10 @@ class PazudoraPluginBase
     end
   end
 
+  def registered_users
+    User.registered_with_plugin(self.class)
+  end
+
   def with_authorized_irc_handle(m, args, &block)
     caller = User.fuzzy_search(m.user.nick)
     unless caller.is_admin
