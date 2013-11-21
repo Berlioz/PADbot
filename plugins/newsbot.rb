@@ -10,7 +10,8 @@ class NewsPlugin < PazudoraPluginBase
   end
 
   def self.helpstring
-    "!pad news: displays last known news bulletin from PDX"
+    "!pad news: displays last known news bulletin from PDX
+!pad news register: register yourself to recieve IRC pings on new news"
   end
 
   def tick(current_time, channels)
@@ -18,12 +19,16 @@ class NewsPlugin < PazudoraPluginBase
     parse_pdx
     if last_headline[:headline] != get_log.last[:headline]
       registered = registered_users
+      targets = []
       channels.each do |channel|
         channel.users.keys.each do |u|
           if registered.include?(User.fuzzy_lookup(u.nick))
-            u.send "PDX has posted a new headline: #{get_log.last[:headline]}"
+            targets << u unless targets.include? u
           end
         end
+      end
+      targets.each do |u|
+        u.send "PDX has hosted a new headline: #{get_log.last[:headline]}"
       end
     end
   end
