@@ -36,7 +36,8 @@ Yes, this means if your username is alias you're SOL. Whoops."
       :registered_name => username,
       :irc_aliases => [],
       :pad_code => sanitized_fc,
-      :is_admin => false
+      :is_admin => false,
+      :plugin_registrations => []
     )
     m.reply "Created #{username} with FC #{sanitized_fc}."
   end

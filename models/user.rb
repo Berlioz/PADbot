@@ -8,6 +8,10 @@ class User
   property :is_admin, Boolean
   property :plugin_registrations, Object
 
+  def self.registered_with_plugin(plugin)
+    self.all.select{|u| u.plugin_registrations.include?(plugin.class.name)}
+  end
+
   def self.fuzzy_lookup(identifier)
     user = self.first(:registered_name => identifier)
 
@@ -31,5 +35,12 @@ class User
 
   def group
     {0 => 'A', 1 => 'B', 2 => 'C', 3 => 'D', 4 => 'E'}[group_number]
+  end
+
+  def add_plugin_registration(plugin)
+    unless plugin_registrations.include?(plugin.class.name)
+      plugin_registrations << plugin.class.name
+      save
+    end
   end
 end

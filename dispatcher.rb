@@ -28,9 +28,13 @@ class Dispatcher
     while true do
       p "Reactor firing: #{Time.now}"
       @reactor_targets.each do |p|
-        p.tick(Time.now)
+        begin
+          p.instance.tick(Time.now, self.bot.channels)
+        rescue Exception => e
+          print "Exception for #{p.name}: #{e}"
+        end
       end
-      sleep(5)
+      sleep(60)
     end
   end
 
