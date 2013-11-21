@@ -32,12 +32,28 @@ class Monster
   property :rem, Boolean
   property :pantheon, String
 
+  NAME_SPECIAL_CASES = {
+    "blodin" => "odin, the war deity",
+    "grodin" => "odin",
+    "light metatron" => "archangel metatron",
+    "l metatron" => "archangel metatron",
+    "dark metatron" => "dark angel metatron",
+    "d metatron" => "dark angel metatron",
+    "cuchu" => "cu chulainn",
+    "chuchoo" => "cu chulainn",
+    "catte" => "love deity feline of harmony, bastet"
+  }
+
   def self.fuzzy_search(identifier)
     if identifier =~ /\A\d+\z/
       id = identifier.to_i
       self.first(:id => id)
     else
       prefix, identifier_t = prefix_split(identifier)
+
+      new_identifier = NAME_SPECIAL_CASES[identifier_t.downcase]
+      identifier_t = new_identifier if new_identifier
+
       match = substring_search(identifier_t)
       if match.nil?
         match = edit_distance_search(identifier_t)
