@@ -16,11 +16,10 @@ class NewsPlugin < PazudoraPluginBase
   def tick(current_time, channels)
     last_headline = get_log.last
     parse_pdx
-    binding.pry
     if last_headline[:headline] != get_log.last[:headline]
       registered = registered_users
       channels.each do |channel|
-        channel.users.each do |u|
+        channel.users.keys.each do |u|
           if registered.include?(User.fuzzy_lookup(u.nick))
             u.send "PDX has posted a new headline: #{get_log.last[:headline]}"
           end
@@ -33,7 +32,7 @@ class NewsPlugin < PazudoraPluginBase
     if args == "parse"
       parse_pdx
       m.reply "Done!"
-    if args == "register"
+    elsif args == "register"
       user = User.fuzzy_lookup(m.user.nick)
       m.reply "You're not registered with Asterbot" and return unless user
       user.add_plugin_registration(NewsPlugin)

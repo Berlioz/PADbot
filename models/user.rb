@@ -39,8 +39,7 @@ class User
 
   def add_plugin_registration(plugin)
     unless plugin_registrations.include?(plugin.class.name)
-      plugin_registrations << plugin.class.name
-      save
-    end
+      self.update!({:plugin_registrations => plugin_registrations + [plugin.class.name]})
+     end
   end
 end
