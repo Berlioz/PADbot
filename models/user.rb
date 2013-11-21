@@ -41,6 +41,6 @@ class User
     unless plugin_registrations.include?(plugin.class.name)
       plugin_registrations << plugin.class.name
       save
-    else
+    end
   end
 end
