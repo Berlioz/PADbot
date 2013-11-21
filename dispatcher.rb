@@ -18,10 +18,10 @@ class Dispatcher
   end
 
   def init_reactor(m=nil, cmd=nil, args=nil)
-    if @@reactor_started
+    if @reactor_started
       m.reply "Event reactor already started." and return
     end
-    @@reactor_started = true
+    @reactor_started = true
     m.reply "Starting event reactor!"
     p "Initializing reactor for: #{@reactor_targets.map(&:name).join(',')}"
 
