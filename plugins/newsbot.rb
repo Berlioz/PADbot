@@ -5,6 +5,12 @@ class NewsPlugin < PazudoraPluginBase
   SEP = " | "
   PDX = "http://www.puzzledragonx.com/"
 
+  def initialize
+    super
+    @last_headline = get_log.last
+    p @last_headline
+  end
+
   def self.aliases
     ['news']
   end
@@ -15,9 +21,9 @@ class NewsPlugin < PazudoraPluginBase
   end
 
   def tick(current_time, channels)
-    last_headline = get_log.last
     parse_pdx
-    if last_headline[:headline] != get_log.last[:headline]
+    if @last_headline[:headline] != get_log.last[:headline]
+      @last_headline = get_log.last
       registered = registered_users
       targets = []
       channels.each do |channel|
