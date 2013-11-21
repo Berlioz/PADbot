@@ -7,7 +7,7 @@ class DailyAlarmPlugin < PazudoraPluginBase
   end
 
   def self.aliases
-    ['clockup', 'clockme', 'clockdown']
+    []
   end
 
   dispatch :clockup, :to => :clockup

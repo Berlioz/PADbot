@@ -6,6 +6,7 @@ class User
   property :irc_aliases, Object
   property :pad_code, Integer
   property :is_admin, Boolean
+  property :plugin_registrations, Object
 
   def self.fuzzy_lookup(identifier)
     user = self.first(:registered_name => identifier)
