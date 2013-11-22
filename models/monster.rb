@@ -41,28 +41,35 @@ class Monster
     "d metatron" => "dark angel metatron",
     "cuchu" => "cu chulainn",
     "chuchoo" => "cu chulainn",
-    "catte" => "love deity feline of harmony, bastet"
+    "catte" => "love deity feline of harmony, bastet",
+    "u&y" => "umisachi&yamasachi",
+    "batman" => "932",
+    "dl batman" => "930",
+    "d/l batman" => "930",
+    "dw batman" => "934",
+    "d/w batman" => "934",
+    "joker" => "924"
   }
 
   def self.fuzzy_search(identifier)
-    if identifier =~ /\A\d+\z/
-      id = identifier.to_i
-      self.first(:id => id)
+    prefix, identifier_t = prefix_split(identifier)
+    new_identifier = NAME_SPECIAL_CASES[identifier_t.downcase]
+    identifier_t = new_identifier if new_identifier
+
+    if identifier_t =~ /\A\d+\z/
+      id = identifier_t.to_i
+      match = self.first(:id => id)
     else
-      prefix, identifier_t = prefix_split(identifier)
-
-      new_identifier = NAME_SPECIAL_CASES[identifier_t.downcase]
-      identifier_t = new_identifier if new_identifier
-
       match = substring_search(identifier_t)
       if match.nil?
         match = edit_distance_search(identifier_t)
       end
-      if match && prefix
-        match = apply_prefix(prefix, match)
-      end
-      match
     end
+
+    if match && prefix
+      match = apply_prefix(prefix, match)
+    end
+    return match
   end
 
   def self.prefix_split(identifier)
