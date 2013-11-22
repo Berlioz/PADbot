@@ -28,16 +28,16 @@ class NewsPlugin < PazudoraPluginBase
         if get_log.last[:time].to_i > @@last_pinged_at[channel.name]
           targets = []
           channel.users.keys.each do |u|
-            if registered.include?(User.fuzzy_lookup(u.nick))
+            if registered_users.include?(User.fuzzy_lookup(u.nick))
               targets << u unless targets.include? u
             end
           end
           channel.send("PDX has hosted a new headline: #{get_log.last[:headline]}")
           channel.send('^ ' + targets.map(&:nick).join(', '))
         end
-        @@last_pinged_at[channel.name] = current_time.to_i
+        @@last_pinged_at[channel.name] = Time.now.to_i
       else
-        @@last_pinged_at[channel.name] = current_time.to_i
+        @@last_pinged_at[channel.name] = Time.now.to_i
       end
     end
   end
