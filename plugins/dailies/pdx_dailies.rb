@@ -33,13 +33,17 @@ class WikiaDailies
     rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
     rows = table.children.slice(starting_index, rows_to_read)
+    rewards = []
 
     rows.each do |row|
       if row.to_s.scan(/\d\d:\d\d/).count == 5 
-        return row.children.first.children.first.attributes["title"].value 
+        rewards << row.children.first.children.first.attributes["title"].value 
       end
     end
-    return ""
+    rewards = rewards.uniq.map do |name|
+      name.gsub('Dungeon of ', '').gsub(' Descended', '')
+    end
+    return rewards.length > 0 ? rewards.join(',') : ""
   end
 
   def self.get_dailies(timezone = -8)
