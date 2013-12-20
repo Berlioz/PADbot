@@ -37,10 +37,10 @@ class WikiaDailies
 
     rows.each do |row|
       if row.to_s.scan(/\d\d:\d\d/).count == 5 
-        rewards << row.children.first.children.first.attributes["title"].value 
+        rewards << row.children.first.children.first.attributes["title"].value rescue nil 
       end
     end
-    rewards = rewards.uniq.map do |name|
+    rewards = rewards.compact.uniq.map do |name|
       name.gsub('Dungeon of ', '').gsub(' Descended', '')
     end
     return rewards.length > 0 ? rewards.join(',') : ""
@@ -113,3 +113,5 @@ class PDXDailies
   end
 
 end
+
+require 'pry'; binding.pry
