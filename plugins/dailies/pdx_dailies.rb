@@ -113,5 +113,3 @@ class PDXDailies
   end
 
 end
-
-require 'pry'; binding.pry

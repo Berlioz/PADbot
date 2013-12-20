@@ -299,7 +299,7 @@ def scrape_monster(n, mode = :create)
       :materials => evo_mats,
       :curve => curve
     }
-    out[:masterials] = out[:materials].first if out[:materials].first.is_a? Array
+    out[:materials] = out[:materials].first if out[:materials].first.is_a? Array
     out[:materials] = out[:materials].map{|s| s.gsub(/[^0-9]/,"").to_i}
     chain = out[:evo_chain]
     own_index = chain.index(n)

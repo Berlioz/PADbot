@@ -55,7 +55,6 @@ class Monster
     prefix, identifier_t = prefix_split(identifier)
     new_identifier = NAME_SPECIAL_CASES[identifier_t.downcase]
     identifier_t = new_identifier if new_identifier
-
     if identifier_t =~ /\A\d+\z/
       id = identifier_t.to_i
       match = self.first(:id => id)
