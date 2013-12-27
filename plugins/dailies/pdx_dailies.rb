@@ -3,12 +3,15 @@ require 'nokogiri'
 
 # TODO: Wait until stable, ditch PDXDailies altoghether, move to stateful parse
 class WikiaDailies
-  def self.today()
-    t = Time.now.getlocal("-08:00")
-    "#{t.month}/#{t.day}"
+  def initialize(offset=0)
+    @today = Time.now.getlocal("-08:00") + (86400 * offset)
   end
 
-  def self.specials
+  def today()
+    "#{@today.month}/#{@today.day}"
+  end
+
+  def specials
     wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
     table = wikia.xpath("//table[@id='dailyEvents']").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
@@ -26,7 +29,7 @@ class WikiaDailies
     specials
   end
 
-  def self.dungeon_reward
+  def dungeon_reward
     wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
     table = wikia.xpath("//table[@id='dailyEvents']").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
@@ -46,7 +49,7 @@ class WikiaDailies
     return rewards.length > 0 ? rewards.join(',') : ""
   end
 
-  def self.get_dailies(timezone = -8)
+  def get_dailies(timezone = -8)
     wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
     table = wikia.xpath("//table[@id='dailyEvents']").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
@@ -66,7 +69,7 @@ class WikiaDailies
   end
 
   #Converts "3 pm" or "5 am" to the corresponding time object (local time to bot)
-  def self.string_to_time_as_seconds(time_as_string)
+  def string_to_time_as_seconds(time_as_string)
     hour = time_as_string.split(":").first
     Date.today.to_time + hour.to_i * 60 * 60
   end

@@ -20,13 +20,38 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     else
       timezone = -8
     end
-    reward = WikiaDailies.dungeon_reward
-    groups = WikiaDailies.get_dailies(timezone)
+    w = WikiaDailies.new
+    reward = w.dungeon_reward
+    groups = w.get_dailies(timezone)
     rv = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}
     rv = rv.join(" | ")
     m.reply "Today's dungeon is #{reward}"
     m.reply rv
-    specials = WikiaDailies.specials
+    specials = w.specials
+    if specials.count > 0
+      m.reply "Special dungeon(s): #{specials.join(', ')}"
+    end
+  end
+end
+
+class TomorrowPlugin < PazudoraPluginBase
+  def self.helpstring
+    "!pad tomorrow: exactly like !pad dailies except it's for...tomorrow!"
+  end
+
+  def self.aliases
+    ['tomorrow']
+  end
+
+  def respond(m,args)
+    w = WikiaDailies.new(1)
+    reward = w.dungeon_reward
+    groups = w.get_dailies
+    rv = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}
+    rv = rv.join(" | ")
+    m.reply "Tomorrow's dungeon is #{reward}"
+    m.reply rv
+    specials = w.specials
     if specials.count > 0
       m.reply "Special dungeon(s): #{specials.join(', ')}"
     end
@@ -47,8 +72,9 @@ Uses Pacific time. If it doesn't work, make sure that Asterbot has channel op."
   end
 
   def respond(m, args)	
-    reward = WikiaDailies.dungeon_reward
-    groups = WikiaDailies.get_dailies(-8)
+    w = WikiaDailies.new
+    reward = w.dungeon_reward
+    groups = w.get_dailies(-8)
     report = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}.join(" | ")
     report = "[#{reward}] " + report + " | #{DAYS[Time.now.wday]} #{Time.now.month}/#{Time.now.day} PST (-8)"
     if m.channel.topic.include?(BORDER)
