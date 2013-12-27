@@ -3,9 +3,12 @@ require 'nokogiri'
 
 # TODO: Wait until stable, ditch PDXDailies altoghether, move to stateful parse
 class WikiaDailies
+  def initialize(offset=0)
+    @today = Time.now.getlocal("-08:00") + (86400 * offset)
+  end
+
   def self.today()
-    t = Time.now.getlocal("-08:00")
-    "#{t.month}/#{t.day}"
+    "#{@today.month}/#{@today.day}"
   end
 
   def self.specials
