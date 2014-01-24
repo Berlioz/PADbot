@@ -133,11 +133,8 @@ class Puzzlemon
     cooldowns = cooldowns.scan(/Cool Down:(\d+) Turns \( (\d+) minimum \)/).first
     cooldowns = "(#{cooldowns.last}-#{cooldowns.first} turns)"
 
-    if lines[index + 3].include?("Leader Skill")
-      effect = lines[index + 1].split(":").last
-    else
-      effect = lines[index + 2].tr(')', '').tr('(', '')
-    end
+    effect_line = lines.detect{|l| l.include?("Effects:")}
+    effect = effect_line.split(":").last
 
     "(Active) #{skillname}: #{effect.strip} #{cooldowns}\n"
   end
