@@ -116,8 +116,8 @@ class Puzzlemon
   end
 
   def awakenings
-    nodes = @doc.xpath("//td[@class='awoken2']")
-    nodes.map{|n| n.children.first.children.last.children.to_s}
+    nodes = @doc.xpath("//td[@class='awoken1']")
+    nodes.map{|n| n.to_s.match(/awokenskill.asp\?s=(\d+)/)[1].to_i}
   end
 
   def skill
