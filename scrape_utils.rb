@@ -13,6 +13,7 @@ Dir.glob("models/*.rb").each {|x| require_relative x}
 
 class Puzzlemon
   PUZZLEMON_BASE_URL = "http://www.puzzledragonx.com/en/"
+  TYPES = ["Dragon", "Balanced", "Physical", "Healer", "Attacker", "God", "Devil", "Evo Material", "Enhance Material", "Protected"]
 
   # given an XP curve page, return the XP required to hit a level from 0
   def self.xp_at_level(curve_page, level)
@@ -172,7 +173,15 @@ class Puzzlemon
 
   def type
     desc = pdx_descriptor
-    desc.scan(/stars (.*?) monster/)[0][0]
+    basic_type = desc.scan(/stars (.*?) monster/)[0][0]
+
+    # attempt to retrieve a second type from PDX
+    text_links = @doc.xpath("//a").map{|x| x.children ? x.children.detect{|y| y.is_a? Nokogiri::XML::Text}.to_s : nil }.compact
+    attested_types = text_links.select{|t| TYPES.include?(t)}
+
+    p "#{name}: #{basic_type} ? #{attested_types}"
+
+    attested_types
   end
 
   def get_puzzledex_description
@@ -260,7 +269,7 @@ def scrape_monster(n, mode = :create)
     stars = pdx.stars
     element = pdx.element
     cost = pdx.cost.to_i
-    type = pdx.type
+    types = pdx.type
     hp_min = pdx.lookup_stat("HP:").first
     hp_max = pdx.lookup_stat("HP:").last
     atk_min = pdx.lookup_stat("ATK:").first
@@ -283,7 +292,7 @@ def scrape_monster(n, mode = :create)
       :stars => stars,
       :element => element,
       :cost => cost,
-      :type => type,
+      :types => types,
       :hp_min => hp_min,
       :hp_max => hp_max,
       :atk_min => atk_min,

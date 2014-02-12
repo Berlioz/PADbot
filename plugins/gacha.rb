@@ -123,7 +123,7 @@ class GachaPlugin < PazudoraPluginBase
       args.to_i.times do
         monster = @gachapon_simulator.roll(godfest_flags)
         stars = monster.stars
-        type = monster.type
+        types = monster.types
         name = monster.name
         if monster.pantheon
           gods << monster.name
@@ -148,7 +148,7 @@ class GachaPlugin < PazudoraPluginBase
     elsif args.nil?
       monster = @gachapon_simulator.roll(godfest_flags)
       stars = monster.stars
-      type = monster.type
+      types = monster.types
       name = monster.name
 
       if name.include?("Golem") || name.include?("Guardian")
@@ -156,7 +156,7 @@ class GachaPlugin < PazudoraPluginBase
         name = e_a_r_t_h_g_o_l_e_m(name)
       end
 
-      if stars >= 5 && type == "god" && !monster.name.include?("Verche")
+      if stars >= 5 && types.include?("God") && !monster.name.include?("Verche")
         msg =  (stars == 6 ? "Lucky bastard!" : "Lucky bastard.")
       elsif stars == 5
         msg = "Meh."
@@ -165,7 +165,7 @@ class GachaPlugin < PazudoraPluginBase
       else
         msg = "I just saved you $5."
       end
-      r = "You got #{name}, a #{stars}* #{type}. #{msg}"
+      r = "You got #{name}, a #{stars}* #{types.first}. #{msg}"
       m.reply(r)
     else
       regex = false
