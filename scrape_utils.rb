@@ -179,9 +179,7 @@ class Puzzlemon
     text_links = @doc.xpath("//a").map{|x| x.children ? x.children.detect{|y| y.is_a? Nokogiri::XML::Text}.to_s : nil }.compact
     attested_types = text_links.select{|t| TYPES.include?(t)}
 
-    p "#{name}: #{basic_type} ? #{attested_types}"
-
-    attested_types
+    attested_types.uniq
   end
 
   def get_puzzledex_description
@@ -249,6 +247,15 @@ def update_book(start = 0)
     rescue ArgumentError => e
       p "ERROR updating! #{e.message}"
     end
+  end
+end
+
+def scrape_new_monsters
+  new_ids = new_monsters
+  p "Creating new entries for #{new_ids.count} monsters..."
+  new_ids.each do |id|
+    data = scrape_monster(id)
+    p "Created #{data}"
   end
 end
 

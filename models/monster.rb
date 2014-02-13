@@ -13,7 +13,7 @@ class Monster
   property :stars, Integer
   property :element, String
   property :cost, Integer
-  property :type, String
+  property :types, Object
   property :hp_min, Integer
   property :atk_min, Integer
   property :rcv_min, Integer

@@ -9,7 +9,7 @@ Examples: !pad lookup horus, !pad lookup 200, !pad lookup the enchanter"
   end
 
   def generate_monster_entry(m)
-    r = "No. #{m.id} #{m.name}, a #{m.stars}* #{m.element} #{m.types.join(' and ')} monster.\n"
+    r = "No. #{m.id} #{m.name}, a #{m.stars}* #{m.element} #{m.types.join('/')} monster.\n"
     r += "Deploy Cost: #{m.cost}. Max level: #{m.max_level}, #{m.max_xp} XP to max.\n"
     r += "Awakenings: #{m.awakenings.map{|id| Awakening.lookup(id).name}.join(', ')}\n" unless m.awakenings.empty?
     r += "HP #{m.hp_min}-#{m.hp_max}, ATK #{m.atk_min}-#{m.atk_max}, RCV #{m.rcv_min}-#{m.rcv_max}, BST #{m.bst_min}-#{m.bst_max}\n"
