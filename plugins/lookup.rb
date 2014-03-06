@@ -38,7 +38,7 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
 
   def execute_query(m, query)
     key = query.downcase
-    lead = "#{m.name} #{key} => "
+    lead = "#{m.name} #{key} =>"
     if ['id', 'stars', 'element', 'cost', 'max_level', 'max_xp'].include?(key)
       "#{lead} #{m.send(key)}"
     elsif key == 'skill'
@@ -46,14 +46,14 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
     elsif key == 'leader' || key == 'leaderskill'
       "#{lead} #{m.leader_text}"
     elsif key == 'awakenings' || key == 'awakening'
-      awakening_list = m.awakenings.empty? ? m.awakenings.map{|id| Awakening.lookup(id).name}.join(', ') : "None"
+      awakening_list = m.awakenings.map{|id| Awakening.lookup(id).name}.join(', ')
       "#{lead} #{awakening_list}" 
     elsif ['hp', 'atk', 'rv', 'bst'].include?(key)
       "#{lead} #{m.send(key + '_min')} - #{m.send(key + '_max')}" 
     else
       "Malforned query; keyword #{key} not recognized."
     end 
-  else
+  end
 
   def respond(m, args)
     search_key = args.split(" ")[0..-2].join(" ")

@@ -2,8 +2,8 @@ class Gachapon
   def initialize
     @leaf_eggs = Monster.all.select{|m| m.rem && m.stars == 3}.map(&:id)
     @silver_eggs = Monster.all.select{|m| m.rem && m.stars == 4}.map(&:id)
-    @gold_eggs = Monster.all.select{|m| m.rem && m.stars == 5 && m.pantheon.nil?}.map(&:id)
-    gods = Monster.all.select{|m| m.rem && m.stars == 5 && m.pantheon}
+    @gold_eggs = Monster.all.select{|m| m.rem && m.stars = 5 && m.pantheon.nil?}.map(&:id)
+    gods = Monster.all.select{|m| m.rem && m.pantheon}
     @all_gods = gods.map(&:id)
     @pantheons = {}
     gods.each do |god|
@@ -14,6 +14,7 @@ class Gachapon
         @pantheons[pantheon] = [god.id]
       end
     end
+    puts @pantheons
   end 
 
   def roll_gold_eggs(godfest_tags)
@@ -106,13 +107,16 @@ class GachaPlugin < PazudoraPluginBase
     if !argv.last.nil? && argv.last.match(/\+\S+/)
       godfest_flags = argv.last.split(//)[1..-1].map(&:upcase)
       args = args.split("+").first.strip
+      if godfest_flags.include? "@"
+        godfest_flags += ["O", "M", "S"]
+      end
     else
       godfest_flags = []
     end
 
     if args == "tags" || args == "list_tags"
       r = "Use +[tags] to denote godfest; for example !pad pull +JGO for a japanese/greek/odins fest.\n"
-      r += "Known tags: [R]oman, [J]apanese, Japanese[2], [I]ndian, [N]orse, [E]gyptian, [G]reek, [O]dins, [A]ngels, [D]evils, [C]hinese, [M]etatrons, [H]eroes"
+      r += "Known tags: [R]oman, [J]apanese, Japanese[2], [I]ndian, [N]orse, [E]gyptian, [G]reek, [O]dins, [A]ngels, [D]evils, [C]hinese, [M]etatrons, [H]eroes, [S]onias, [@]ll Godfest-Only"
       m.reply r
     elsif args.to_i != 0
       gods = []
@@ -173,13 +177,16 @@ class GachaPlugin < PazudoraPluginBase
       if identifier.match(/\A\/.*\/\z/)
         regex = true
         identifier = Regexp.new("#{identifier[1..-2]}")
+      elsif Monster::NAME_SPECIAL_CASES.keys.include?(identifier)
+        target = Monster.fuzzy_search(identifier)
+        identifier = target.name.downcase
       end
       attempts = 0
       monster = nil
       loop do
         attempts = attempts + 1
         monster = @gachapon_simulator.roll(godfest_flags)
-        break if !regex && (monster.name.downcase.include?(identifier) || monster.id == identifier)
+        break if !regex && (monster.name.downcase.include?(identifier) || monster.id.to_s == identifier)
         break if regex && (monster.name.downcase.match(identifier) || monster.name.match(identifier))
         m.reply("Unable to roll #{identifier}") and return if attempts == 1000
       end

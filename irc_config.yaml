@@ -12,5 +12,5 @@ production:
 - server: irc.synirc.net
   nick: asterbot-mk2
   channels:
-  - ! '#padgoons'
+  - ! '#zeusisloose'
   - ! '#pad'
