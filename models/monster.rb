@@ -84,7 +84,7 @@ class Monster
   def self.prefix_split(identifier)
     test = identifier.split(' ', 2).first
     remainder = identifier.split(' ', 2).last
-    if test =~ /\A\d\*\z/ || test.downcase == "evolved" || test.downcase == "base"
+    if test =~ /\A\d\*\z/ || test.downcase.incude?("evolved") || test.downcase == "base"
       return test,remainder
     else
       return nil, identifier
@@ -107,6 +107,12 @@ class Monster
     elsif prefix.downcase == "evolved"
       while current_monster.get_evolved
         current_monster = current_monster.get_evolved
+      end
+      return current_monster  
+    elsif prefix.downcase.include? "evolved"
+      type_bias = prefix.split('_', 2).first
+      while current_monster.get_evolved(type_bias)
+        current_monster = current_monster.get_evolved(type_bias)
       end
       return current_monster  
     elsif prefix.downcase == "base"
@@ -136,8 +142,25 @@ class Monster
     self.first(:name => choice)
   end
 
-  def get_evolved
-    evolved == nil ? nil : Monster.get(evolved)
+  def get_evolved(type_string = nil)
+    if evolved.is_a? Array
+      case type_string
+      when 'dark', 'd', 'black'
+        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+      when 'light', 'l', 'white'
+        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+      when 'wood', 'g', 'green'
+        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+      when 'water', 'w', 'blue'
+        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+      when 'fire', 'f', 'red'
+        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+      else
+        Monster.get(evolved.first)
+      end
+    else
+      evolved == nil ? nil : Monster.get(evolved)
+    end
   end
 
   def get_unevolved

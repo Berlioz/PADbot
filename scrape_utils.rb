@@ -201,6 +201,10 @@ def chain(pdx)
   chain_members.map(&:to_i)
 end
 
+def ultimate_count(pdx)
+  pdx.noko.xpath("//td[@class='finalevolve nowrap']").count
+end
+
 def mats(pdx)
   info = pdx.noko
 
@@ -316,8 +320,17 @@ def scrape_monster(n, mode = :create)
     out[:materials] = out[:materials].map{|s| s.gsub(/[^0-9]/,"").to_i}
     chain = out[:evo_chain]
     own_index = chain.index(n)
-    out[:unevolved] = own_index == 0 ? nil : chain[own_index - 1] unless own_index.nil?
-    out[:evolved] = own_index == chain.length - 1 ? nil : chain[own_index + 1] unless own_index.nil?
+    ultimate_count = ultimate_count(pdx)
+    if ultimate_count > 0 && own_index >= (chain.count - ultimate_count) #ultimate evolved mon
+      out[:unevolved] = chain[chain.count - ultimate_count - 1]
+      out[:evolved] = nil
+    elsif ultimate_count > 0 && own_index == (chain.count - ultimate_count - 1) #terminal before ultimate
+      out[:unevolved] = own_index == 0 ? nil : chain[own_index - 1] 
+      out[:evolved] = chain[(0 - ultimate_count)..-1]
+    else
+      out[:unevolved] = own_index == 0 ? nil : chain[own_index - 1] unless own_index.nil?
+      out[:evolved] = own_index == chain.length - 1 ? nil : chain[own_index + 1] unless own_index.nil?
+    end
     data = out.delete_if{|k,v| k == :evo_chain}
     case mode
       when :create
@@ -328,7 +341,7 @@ def scrape_monster(n, mode = :create)
       when :test
         #noop
     end
-    out
+    data
 end
 
 config = YAML.load(File.read("database_config.yaml"))
