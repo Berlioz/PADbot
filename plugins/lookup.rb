@@ -32,22 +32,24 @@ class QueryPlugin < PazudoraPluginBase
 
   def self.helpstring
     "!pad query SEARCHKEY QUERY: Finds the monster referenced by SEARCHKEY, then displays only the QUERY'd parameter.
-Queries: ID, STARS, ELEMENT, TYPES, COST, AWAKENINGS, SKILL, LEADER, HP, ATK, RCV, BST. 
+Queries: NAME, ID, STARS, ELEMENT, TYPES, COST, AWAKENINGS, SKILL, LEADER, STATS, HP, ATK, RCV, BST. 
 Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
   end
 
   def execute_query(m, query)
     key = query.downcase
     lead = "#{m.name} #{key} =>"
-    if ['id', 'stars', 'element', 'cost', 'max_level', 'max_xp'].include?(key)
+    if ['name', 'id', 'stars', 'element', 'cost', 'max_level', 'max_xp'].include?(key)
       "#{lead} #{m.send(key)}"
-    elsif key == 'skill'
+    elsif key == 'skill' || key == 'active'
       "#{lead} #{m.skill_text}" 
     elsif key == 'leader' || key == 'leaderskill'
       "#{lead} #{m.leader_text}"
     elsif key == 'awakenings' || key == 'awakening'
       awakening_list = m.awakenings.map{|id| Awakening.lookup(id).name}.join(', ')
       "#{lead} #{awakening_list}" 
+    elsif key == 'stats'
+      "#{lead} HP #{m.hp_min} - #{m.hp_max}, ATK #{m.atk_min} - #{m.atk_max}, RCV #{m.rcv_min} - #{m.rcv_max}, BST #{m.bst_min} - #{m.bst_max}"
     elsif ['hp', 'atk', 'rv', 'bst'].include?(key)
       "#{lead} #{m.send(key + '_min')} - #{m.send(key + '_max')}" 
     else
