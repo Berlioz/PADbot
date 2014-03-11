@@ -248,7 +248,7 @@ def update_book(start = 0)
     p "updating ##{m.id} #{m.name}..."
     begin
       scrape_monster(m.id, :update)
-    rescue ArgumentError => e
+    rescue Exception => e
       p "ERROR updating! #{e.message}"
     end
   end
@@ -258,8 +258,12 @@ def scrape_new_monsters
   new_ids = new_monsters
   p "Creating new entries for #{new_ids.count} monsters..."
   new_ids.each do |id|
-    data = scrape_monster(id)
-    p "Created #{data}"
+    begin
+      data = scrape_monster(id)
+      p "Created #{data}"
+    rescue Exception => e
+      p "Failed on ID #{id}: #{e}"
+    end
   end
 end
 
