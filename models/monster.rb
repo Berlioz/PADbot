@@ -84,7 +84,7 @@ class Monster
   def self.prefix_split(identifier)
     test = identifier.split(' ', 2).first
     remainder = identifier.split(' ', 2).last
-    if test =~ /\A\d\*\z/ || test.downcase.incude?("evolved") || test.downcase == "base"
+    if test =~ /\A\d\*\z/ || test.downcase.include?("evolved") || test.downcase == "base"
       return test,remainder
     else
       return nil, identifier
@@ -146,18 +146,19 @@ class Monster
     if evolved.is_a? Array
       case type_string
       when 'dark', 'd', 'black'
-        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and dark')}
       when 'light', 'l', 'white'
-        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and light')}
       when 'wood', 'g', 'green'
-        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and wood')}
       when 'water', 'w', 'blue'
-        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and water')}
       when 'fire', 'f', 'red'
-        evolved.detect{|id| Monster.get(id).element.include?(dark)}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and fire')}
       else
-        Monster.get(evolved.first)
+        m_id = evolved.first
       end
+      Monster.get(m_id)
     else
       evolved == nil ? nil : Monster.get(evolved)
     end
