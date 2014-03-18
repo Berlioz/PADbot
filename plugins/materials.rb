@@ -10,7 +10,7 @@ class MatsPlugin < PazudoraPluginBase
   def respond(m, args)
     puzzlemon = Monster.fuzzy_search(args)
     m.reply "Could not find monster #{args}" && return if puzzlemon.nil?
-    msg = "#{puzzlemon} evolution materials: "
+    msg = "#{puzzlemon} materials: "
     if puzzlemon.materials.first.is_a? Array
       ultimates = puzzlemon.materials.map{|evo| ids_to_names(evo).join(", ")}
       msg += ultimates.join(" | ")
@@ -39,12 +39,17 @@ class MatsForPlugin < PazudoraPluginBase
   def respond(m, args)
     puzzlemon = Monster.fuzzy_search(args)
     previous = Monster.get(puzzlemon.unevolved) rescue nil
-    m.reply "Could not find monster #{args}" && return if puzzlemon.nil?
-    m.reply "Monster #{puzzlemon} does not have an unevolved form" && return if previous.nil?
+    if puzzlemon.nil?
+      m.reply "Could not find monster #{args}"
+      return
+    elsif previous.nil?
+      m.reply "Monster #{puzzlemon} does not have an unevolved form"
+      return
+    end
     msg = "#{previous} => #{puzzlemon} materials: "
     if previous.materials.first.is_a? Array
       i = previous.evolved.index(puzzlemon.id)
-      msg == ids_to_names(previous.materials[i].join(", "))
+      msg += ids_to_names(previous.materials[i]).join(", ")
     else
       msg += ids_to_names(previous.materials).join(", ")
     end
