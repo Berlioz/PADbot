@@ -58,7 +58,9 @@ class Monster
     "d/l batman" => "930",
     "dw batman" => "934",
     "d/w batman" => "934",
-    "joker" => "924"
+    "joker" => "924",
+    "shirtless vampire" => "dark liege, vampire duke",
+    "shirted vampire" => "arcane monarch, vampire duke"
   }
 
   def self.fuzzy_search(identifier)

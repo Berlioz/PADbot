@@ -19,7 +19,7 @@ class ChainPlugin < PazudoraPluginBase
     successor = puzzlemon
     while successor.evolved
       if successor.evolved.is_a? Array
-        names = successor.evolved.map{|m| Monster.first(:id => m).name}
+        names = successor.evolved.map{|m| Monster.get(m)..name}
         chain = chain + names
         break
       else
