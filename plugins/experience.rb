@@ -2,7 +2,7 @@ require 'json'
 
 class ExperiencePlugin < PazudoraPluginBase
   def self.aliases
-    ['exp', 'experience', 'level', 'levelup']
+    ['exp', 'xp', 'experience', 'level', 'levelup']
   end
 
   def self.helpstring
