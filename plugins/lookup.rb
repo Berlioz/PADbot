@@ -46,6 +46,9 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
     elsif key == 'leader' || key == 'leaderskill'
       "#{lead} #{m.leader_text}"
     elsif key == 'awakenings' || key == 'awakening'
+      while (m.awakenings.empty? && m.evolved)
+        m = Monster.get( m.evolved.is_a?(Array) ? m.evolved.first : m.evolved )
+      end
       awakening_list = m.awakenings.map{|id| Awakening.lookup(id).name}.join(', ')
       "#{lead} #{awakening_list}" 
     elsif key == 'stats'
