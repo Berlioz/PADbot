@@ -5,6 +5,7 @@ require 'nokogiri'
 class WikiaDailies
   def initialize(offset=0)
     @today = Time.now.getlocal("-08:00") + (86400 * offset)
+    @wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
   end
 
   def self.today()
@@ -15,9 +16,33 @@ class WikiaDailies
     "#{@today.month}/#{@today.day}"
   end
 
+  def group_dragons(abbreviated = false)
+    shortcuts = {"Super Metal Dragons Descended" => "Metal Supers",
+                 "Super Gold Dragons Descended" => "Gold Supers",
+                 "Super Emerald Dragons Descended" => "Emerald Supers",
+                 "Super Ruby Dragons Descended" => "Ruby Supers",
+                 "Super Sapphire Dragons Descended" => "Sapphire Supers" }
+    table = @wikia.xpath("//table").last # deterministic?
+    row = table.children.detect{|e| e.children.first.to_s.include?(today)}
+
+    groups = []
+    {1 => "Red", 2 => "Blue", 3 => "Green"}.each do |index, color|
+      data = row.children[index].children
+      next unless data.count == 2
+      dragon = data.first.attributes["title"].value
+      dragon = shortcuts[dragon] ? shortcuts[dragon] : dragon
+      time = data.last.to_s.strip
+      if abbreviated
+        groups << "#{color[0]} @ #{time}"
+      else
+        groups << "#{color} Starters: #{dragon} @ #{time}"
+      end
+    end
+    groups
+  end
+
   def specials
-    wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
-    table = wikia.xpath("//table[@id='dailyEvents']").first
+    table = @wikia.xpath("//table[@id='dailyEvents']").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
     rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
@@ -34,8 +59,7 @@ class WikiaDailies
   end
 
   def dungeon_reward
-    wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
-    table = wikia.xpath("//table[@id='dailyEvents']").first
+    table = @wikia.xpath("//table[@id='dailyEvents']").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
     rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
@@ -54,8 +78,7 @@ class WikiaDailies
   end
 
   def get_dailies(timezone = -8)
-    wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
-    table = wikia.xpath("//table[@id='dailyEvents']").first
+    table = @wikia.xpath("//table[@id='dailyEvents']").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
     rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)

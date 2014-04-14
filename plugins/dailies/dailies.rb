@@ -31,6 +31,10 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     if specials.count > 0
       m.reply "Special dungeon(s): #{specials.join(', ')}"
     end
+    supers = w.group_dragons
+    if supers.count > 0
+      m.reply supers.join(', ')
+    end
   end
 end
 
@@ -75,8 +79,13 @@ Uses Pacific time. If it doesn't work, make sure that Asterbot has channel op."
     w = WikiaDailies.new
     reward = w.dungeon_reward
     groups = w.get_dailies(-8)
+    supers = w.group_dragons(true)
     report = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}.join(" | ")
-    report = "[#{reward}] " + report + " | #{DAYS[Time.now.wday]} #{Time.now.month}/#{Time.now.day} PST (-8)"
+    report = "[#{reward}] " + report
+    if supers.length > 0
+      report += " | SUPERS #{supers.join(', ')}"
+    end
+    report += " | #{DAYS[Time.now.wday]} #{Time.now.month}/#{Time.now.day} PST (-8)"
     if m.channel.topic.include?(BORDER)
       saved_topic = m.channel.topic.split(BORDER)[0..-2].join(BORDER)
       p "Attempting to set topic to #{saved_topic + BORDER + report}"
