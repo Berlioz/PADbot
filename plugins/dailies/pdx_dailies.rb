@@ -22,7 +22,8 @@ class WikiaDailies
                  "Super Emerald Dragons Descended" => "Emerald Supers",
                  "Super Ruby Dragons Descended" => "Ruby Supers",
                  "Super Sapphire Dragons Descended" => "Sapphire Supers" }
-    table = @wikia.xpath("//table").last # deterministic?
+    return [] if @wikia.xpath("//table").count == 1
+    table = @wikia.xpath("//table").last
     row = table.children.detect{|e| e.children.first.to_s.include?(today)}
 
     groups = []
