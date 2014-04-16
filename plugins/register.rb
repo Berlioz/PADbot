@@ -30,7 +30,7 @@ Yes, this means if your username is alias you're SOL. Whoops."
     end
     sanitized_fc = fc.gsub(/[^0-9]/,"").to_i
     unless sanitized_fc.to_s.length == 9
-      m.reply "WARNING: provided FC is not 9 digits long."
+      m.reply "ERROR: provided FC is not 9 digits long. Aborting." and return
     end
     User.create(
       :registered_name => username,
