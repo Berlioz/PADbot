@@ -3,6 +3,20 @@ require 'nokogiri'
 
 # TODO: Wait until stable, ditch PDXDailies altoghether, move to stateful parse
 class WikiaDailies
+  SHORTCUTS = {"Super Metal Dragons Descended" => "Metal Supers",
+               "Super Gold Dragons Descended" => "Gold Supers",
+               "Super Emerald Dragons Descended" => "Emerald Supers",
+               "Super Ruby Dragons Descended" => "Ruby Supers",
+               "Super Sapphire Dragons Descended" => "Sapphire Supers",
+               "Alert! Metal Dragons!" => "Metals",
+               "Dungeon of Gold Dragons" => "Golds",
+               "Dungeon of Ruby Dragons" => "Rubies",
+               "Dungeon of Sapphire Dragons" => "Sapphires",
+               "Dungeon of Emerald Dragons" => "Emeralds",
+               "Pengdra Village" => "Pengies",
+               "Alert! Dragon Plant Infestation!" => "Plants",
+               "King Carnival" => "Kings" }
+
   def initialize(offset=0)
     @today = Time.now.getlocal("-08:00") + (86400 * offset)
     @wikia = Nokogiri::HTML(open("http://pad.wikia.com/wiki/Template:Urgent_Timetable"))
@@ -16,12 +30,11 @@ class WikiaDailies
     "#{@today.month}/#{@today.day}"
   end
 
+  def compress(dungeon_name)
+    SHORTCUTS[dungeon_name] ? SHORTCUTS[dungeon_name] : dungeon_name
+  end
+
   def group_dragons(abbreviated = false)
-    shortcuts = {"Super Metal Dragons Descended" => "Metal Supers",
-                 "Super Gold Dragons Descended" => "Gold Supers",
-                 "Super Emerald Dragons Descended" => "Emerald Supers",
-                 "Super Ruby Dragons Descended" => "Ruby Supers",
-                 "Super Sapphire Dragons Descended" => "Sapphire Supers" }
     return [] if @wikia.xpath("//table").count == 1
     table = @wikia.xpath("//table").last
     row = table.children.detect{|e| e.children.first.to_s.include?(today)}
@@ -31,12 +44,12 @@ class WikiaDailies
       data = row.children[index].children
       next unless data.count == 2
       dragon = data.first.attributes["title"].value
-      dragon = shortcuts[dragon] ? shortcuts[dragon] : dragon
+
       time = data.last.to_s.strip
       if abbreviated
         groups << "#{color[0]} @ #{time}"
       else
-        groups << "#{color} Starters: #{dragon} @ #{time}"
+        groups << "#{color} Starters: #{compress(dragon)} @ #{time}"
       end
     end
     groups
@@ -72,10 +85,8 @@ class WikiaDailies
         rewards << row.children.first.children.first.attributes["title"].value rescue nil 
       end
     end
-    rewards = rewards.compact.uniq.map do |name|
-      name.gsub('Dungeon of ', '').gsub(' Descended', '')
-    end
-    return rewards.length > 0 ? rewards.join(',') : ""
+    rewards = rewards.compact.map {|name| compress(name)}
+    return rewards.length > 0 ? rewards.join(', ') : ""
   end
 
   def get_dailies(timezone = -8)
