@@ -27,6 +27,11 @@ class ExperiencePlugin < PazudoraPluginBase
     m.reply "Could not match #{monstername} to a monster." && return if monster.nil?
     xp = experience_to_max(monster, starting_level)
     m.reply "#{monster} does not level up." && return if xp.nil?
+    while xp < 0
+      break if monster.evolved.nil? || monster.evolved.is_a?(Array) # no evolution or ultimate evolution
+      monster = Monster.get(monster.evolved)
+      xp = experience_to_max(monster, starting_level)
+    end
     pengies = (xp / 45000.0).round(2)
     offcolor = (xp / 30000.0).round(2)
     m.reply "To get #{monster} from #{starting_level} to #{monster.max_level} takes #{xp}xp, or #{pengies} (#{offcolor} offcolor) pengdras. Get farming!"
