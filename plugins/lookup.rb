@@ -41,6 +41,10 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
     lead = "#{m.name} #{key} =>"
     if ['name', 'id', 'stars', 'element', 'cost', 'max_level', 'max_xp'].include?(key)
       "#{lead} #{m.send(key)}"
+    elsif key == 'type' || key == 'types'
+      "#{lead} #{m.types.join(',')}"
+    elsif key == "element" || key == "elements"
+      "#{lead} #{m.element}"
     elsif key == 'skill' || key == 'active'
       "#{lead} #{m.skill_text}" 
     elsif key == 'leader' || key == 'leaderskill'
