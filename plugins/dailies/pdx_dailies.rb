@@ -38,6 +38,7 @@ class WikiaDailies
     return [] if @wikia.xpath("//table").count == 1
     table = @wikia.xpath("//table").last
     row = table.children.detect{|e| e.children.first.to_s.include?(today)}
+    return [] if row.nil?
 
     groups = []
     {1 => "Red", 2 => "Blue", 3 => "Green"}.each do |index, color|
