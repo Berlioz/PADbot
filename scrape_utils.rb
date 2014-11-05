@@ -6,6 +6,8 @@ require 'pry'
 require 'json'
 require 'data_mapper'
 require 'yaml'
+require 'colorize'
+
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
 # PORTED FROM OLD ASTERBOT. NOT MAINTAINABLE CODE
@@ -250,25 +252,27 @@ end
 
 def update_book(start = 0)
   Monster.all.each do |m|
-    next unless m.id > start
-    p "updating ##{m.id} #{m.name}..."
+    next unless m.qq\
+    id > start
+    p "updating ##{m.id} #{m.name}...".colorize(:green)
     begin
-      p scrape_monster(m.id, :update)
+      pp scrape_monster(m.id, :update)
     rescue Exception => e
-      p "ERROR updating! #{e.message}"
+      p "ERROR updating! #{e.message}".colorize(:red)
     end
   end
 end
 
 def scrape_new_monsters
   new_ids = new_monsters
-  p "Creating new entries for #{new_ids.count} monsters..."
+  p "Creating new entries for #{new_ids.count} monsters...".colorize(:light_blue)
   new_ids.each do |id|
     begin
+      p "updating #{id}".colorize(:green)
       data = scrape_monster(id)
-      p "Created #{data}"
+      pp data
     rescue Exception => e
-      p "Failed on ID #{id}: #{e}"
+      p "Failed on ID #{id}: #{e}".colorize(:red)
     end
   end
 end
@@ -276,7 +280,7 @@ end
 def new_monsters
   data = open("http://www.puzzledragonx.com/en/monsterbook.asp").read
   all_ids = data.scan(/monster.asp\?n=(\d+)/).flatten.map(&:to_i)
-  all_ids.select{|id| Monster.get(id).nil?}
+  all_ids.select{|id| Monster.get(id).nil?}.uniq
 end
 
 def scrape_monster(n, mode = :create)

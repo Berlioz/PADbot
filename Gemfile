@@ -11,6 +11,7 @@ gem 'pry'
 # Database
 gem 'dm-postgres-adapter'
 gem 'data_mapper'
+gem 'colorize'
 
 # Plugin dependencies
 gem 'levenshtein'
