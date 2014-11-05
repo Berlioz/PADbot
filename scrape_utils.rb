@@ -92,7 +92,7 @@ class Puzzlemon
 
   # given a pazudora info page, find the max level of the monster
   def max_level
-    lookup_stat("Level:").last
+    lookup_stat("level").last
   end
 
   def max_xp
@@ -105,33 +105,33 @@ class Puzzlemon
   end
 
   def stat_line(stat_name)
-    minmax = lookup_stat(stat_name + ":")
+    minmax = lookup_stat(stat_name.downcase)
     "#{minmax.first}-#{minmax.last}"
   end
 
   def lookup_stat(stat_name)
-    row = @doc.xpath("//table[@id = 'tablestat']//td[@class = 'title']").
-        select{|x| x.text == stat_name}.first
-    siblings = row.parent.children
-    [siblings[1].text.to_i, siblings[2].text.to_i]
+    stat_tr = @doc.xpath("//td[@class=\"#{ 'stat' + stat_name }\"]").first.parent
+    max_val = stat_tr.children[1].children.first.to_s
+    min_val = stat_tr.children[2].children.first.to_s
+
+    [max_val.to_i, min_val.to_i]
   end
 
   def awakenings
-    nodes = @doc.xpath("//td[@class='awoken1']")
-    nodes.map{|n| n.to_s.match(/awokenskill.asp\?s=(\d+)/)[1].to_i}
+    awakening_links = @doc.xpath("//a").select{|node| node.attributes["href"] && node.attributes["href"].value.include?("awokenskill.asp")}
+    awakening_links.map{|node| node.attributes["href"].value.match(/\d+/)[0]}
   end
 
   def skill
-    link = @doc.xpath("//a").select{|link| link.attributes["href"] && link.attributes["href"].
-        value.match(/\Askill.asp?/)}.first
+    link = @doc.xpath("//a").select{|node| node.attributes["href"] && /\Askill.asp/ === node.attributes["href"].value}.first
     return "No active skill.\n" if link.nil?
     name = link.children.first.text
     lines = link.parent.parent.parent.children.map(&:text)
-    index = lines.index("Skill:#{name}")
+    index = lines.index("Active Skill:#{name}")
 
     skillname = lines[index].split(":").last
     cooldowns = lines.select{|l| l.include? "Cool Down"}.first
-    cooldowns = cooldowns.scan(/Cool Down:(\d+) Turns \( (\d+) minimum \)/).first
+    cooldowns = cooldowns.scan(/Cool Down:(\d+) Turns \( (\d+) min \)/).first
     cooldowns = "(#{cooldowns.last}-#{cooldowns.first} turns)"
 
     effect_line = lines.detect{|l| l.include?("Effects:")}
@@ -148,7 +148,7 @@ class Puzzlemon
     lines = link.parent.parent.parent.children.map(&:text)
     index = lines.index("Leader Skill:#{name}")
     if lines[index + 2]
-      effect = lines[index + 2].tr(')', '').tr('(', '')
+      effect = lines[index + 2].tr(')', '').tr('(', '').strip
     end
     if effect.nil? || effect == ""
       effect = lines[index + 1].split(":").last
@@ -172,14 +172,20 @@ class Puzzlemon
   end
 
   def type
-    desc = pdx_descriptor
-    basic_type = desc.scan(/stars (.*?) monster/)[0][0]
+    type_line = @doc.xpath('//td[@class="ptitle"]').select{|node| node.children.to_s == "Type:"}.first
+    primary_type = type_line.parent.children[1].children.children.to_s
+    secondary_type = type_line.parent.children[2].children.children.to_s
+    secondary_type ? [primary_type] : [primary_type, secondary_type]
+
+    #binding.pry
+    #desc = pdx_descriptor
+    #basic_type = desc.scan(/stars (.*?) monster/)[0][0]
 
     # attempt to retrieve a second type from PDX
-    text_links = @doc.xpath("//a").map{|x| x.children ? x.children.detect{|y| y.is_a? Nokogiri::XML::Text}.to_s : nil }.compact
-    attested_types = text_links.select{|t| TYPES.include?(t)}
+    #text_links = @doc.xpath("//a").map{|x| x.children ? x.children.detect{|y| y.is_a? Nokogiri::XML::Text}.to_s : nil }.compact
+    #attested_types = text_links.select{|t| TYPES.include?(t)}
 
-    attested_types.uniq
+    #attested_types.uniq
   end
 
   def get_puzzledex_description
@@ -247,7 +253,7 @@ def update_book(start = 0)
     next unless m.id > start
     p "updating ##{m.id} #{m.name}..."
     begin
-      scrape_monster(m.id, :update)
+      p scrape_monster(m.id, :update)
     rescue Exception => e
       p "ERROR updating! #{e.message}"
     end
@@ -280,17 +286,17 @@ def scrape_monster(n, mode = :create)
     max_xp = pdx.max_xp.to_i
     skill_text = pdx.skill
     leader_text = pdx.leaderskill
-    awakenings = pdx.awakenings
+    awakenings = pdx.awakenings.map(&:to_i)
     stars = pdx.stars
     element = pdx.element
     cost = pdx.cost.to_i
     types = pdx.type
-    hp_min = pdx.lookup_stat("HP:").first
-    hp_max = pdx.lookup_stat("HP:").last
-    atk_min = pdx.lookup_stat("ATK:").first
-    atk_max = pdx.lookup_stat("ATK:").last
-    rcv_min = pdx.lookup_stat("RCV:").first
-    rcv_max = pdx.lookup_stat("RCV:").last
+    hp_min = pdx.lookup_stat("hp").first
+    hp_max = pdx.lookup_stat("hp").last
+    atk_min = pdx.lookup_stat("atk").first
+    atk_max = pdx.lookup_stat("atk").last
+    rcv_min = pdx.lookup_stat("rcv").first
+    rcv_max = pdx.lookup_stat("rcv").last
     bst_min = hp_min + atk_min + rcv_min
     bst_max = hp_max + atk_max + rcv_max
     evo_chain = chain(pdx)
