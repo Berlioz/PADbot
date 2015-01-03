@@ -48,6 +48,12 @@ class Dispatcher
   def execute(m, cmd, args)
     plugin = select_plugin(cmd.downcase.chomp)
     return if plugin.nil?
+    plugin.set_dispatcher(self)
     plugin.instance.respond(m, args)
   end
+
+  def exec_helper(method, *args)
+    self.send(method, *args)
+  end
 end
+

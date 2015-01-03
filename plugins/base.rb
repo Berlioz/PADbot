@@ -4,6 +4,7 @@ require 'singleton'
 class PazudoraPluginBase
   include Singleton
   @@commands = {}
+  @@dispatcher = nil
   
   def self.descendants
     ObjectSpace.each_object(Class).select {|klass| klass < self}
@@ -19,6 +20,10 @@ class PazudoraPluginBase
      
   def self.dispatch(command, opts={})
     @@commands[command.to_sym] = opts[:to].to_sym if opts[:to]
+  end
+
+  def self.set_dispatcher(dispatcher)
+    @@dispatcher = dispatcher
   end
 
   def respond(m, args)
