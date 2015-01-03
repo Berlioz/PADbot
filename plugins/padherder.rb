@@ -9,7 +9,7 @@ class PadherderPlugin < PazudoraPluginBase
   end
 
   def respond(m, args)
-    if args.length > 0
+    if args
       username = args
     else
       username = m.user.nick
