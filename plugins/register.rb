@@ -6,7 +6,7 @@ class RegisterPlugin < PazudoraPluginBase
   def self.helpstring
 "!pad register USERNAME FC: Tells asterbot to associate USERNAME with the provided FC (!pad register asterbot 123456789)
 !pad register FC: Tells asterbot to associate your current IRC handle with the provided FC.
-!pad register alias USERNAME: Tells asterbot that your current IRC handle belongs to the already registerd USERNAME
+!pad register alias USERNAME: Tells asterbot that your current IRC handle belongs to the already registered USERNAME
 Yes, this means if your username is alias you're SOL. Whoops."
   end
 
