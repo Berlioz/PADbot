@@ -7,6 +7,7 @@ class User
   property :pad_code, Integer
   property :is_admin, Boolean
   property :plugin_registrations, Object
+  property :padherder_name, String
 
   def self.registered_with_plugin(plugin)
     self.all.select{|u| u.plugin_registrations.include?(plugin.class.name)}
