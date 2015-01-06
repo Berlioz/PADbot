@@ -14,7 +14,7 @@ class WhoPlugin < PazudoraPluginBase
       m.reply "Unknown user/IRC alias #{username}."
     else
       m.reply "#{user.registered_name}'s code is #{user.pad_code}"
-	if defined?(user.padherder_name)
+	unless user.padherder_name.nil?
 		m.reply "#{user.registered_name}'s padherder account is at https://www.padherder.com/user/#{user.padherder_name}/monsters/"
 	end
     end
