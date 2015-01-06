@@ -16,7 +16,7 @@ Yes, this means if your username is alias you're SOL. Whoops.
     if argv.first == "alias"
       add_user_alias(m, argv.last, m.user.nick)	
     elsif argv.first == "padherder"
-      add_user_padherder(m, argv.last, m.user.nick)
+      add_user_padherder(m, m.user.nick, argv.last)
     elsif argv.length == 1
       add_user(m, m.user.nick, argv.first)
     elsif argv.length == 2
