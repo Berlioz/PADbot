@@ -7,13 +7,16 @@ class RegisterPlugin < PazudoraPluginBase
 "!pad register USERNAME FC: Tells asterbot to associate USERNAME with the provided FC (!pad register asterbot 123456789)
 !pad register FC: Tells asterbot to associate your current IRC handle with the provided FC.
 !pad register alias USERNAME: Tells asterbot that your current IRC handle belongs to the already registered USERNAME
-Yes, this means if your username is alias you're SOL. Whoops."
+Yes, this means if your username is alias you're SOL. Whoops.
+!pad register padherder PADHERDER USERNAME: Tells asterbot to register your padherder username so we can easily get a link."
   end
 
   def respond(m,args)
     argv = args.split(" ")
     if argv.first == "alias"
-      add_user_alias(m, argv.last, m.user.nick)
+      add_user_alias(m, argv.last, m.user.nick)	
+    elsif argv.first == "padherder"
+      add_user_padherder(m, argv.last, m.user.nick)
     elsif argv.length == 1
       add_user(m, m.user.nick, argv.first)
     elsif argv.length == 2
@@ -50,5 +53,16 @@ Yes, this means if your username is alias you're SOL. Whoops."
     original_user.irc_aliases = original_user.irc_aliases + [new_alias]
     original_user.save
     m.reply "Associated #{original_user} with new alias #{new_alias}."
+  end
+
+  def add_user_padherder(m, username, padherder_name)
+	original_user = User.fuzzy_lookup(username)
+	unless original_user
+		m.reply "#{username} does not match a known existing user." and return
+	end
+	original_user.padherder_name = padherder_name
+	original_user.save
+	m.reply "Associated #{original_user} with padherder username #{padherder_name}."
+	m.reply "The user's padherder link is at https://www.padherder.com/user/#{padherder_name}/monsters/."
   end
 end
