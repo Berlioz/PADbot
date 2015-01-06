@@ -8,7 +8,7 @@ class WhoPlugin < PazudoraPluginBase
   end
 
   def respond(m,args)
-    username = args.strip
+    username = args ? args.strip : m.user.nick
     user = User.fuzzy_lookup(username)
     if user.nil?
       m.reply "Unknown user/IRC alias #{username}."
