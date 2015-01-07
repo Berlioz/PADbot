@@ -1,6 +1,6 @@
 class WhoPlugin < PazudoraPluginBase
   def self.aliases
-    ['who', 'code', 'fc']
+    ['who', 'code', 'fc', 'padherder','herder','freddie']
   end
 
   def self.helpstring
@@ -8,12 +8,15 @@ class WhoPlugin < PazudoraPluginBase
   end
 
   def respond(m,args)
-    username = args.strip
+    username = args ? args.strip : m.user.nick
     user = User.fuzzy_lookup(username)
     if user.nil?
       m.reply "Unknown user/IRC alias #{username}."
     else
       m.reply "#{user.registered_name}'s code is #{user.pad_code}"
+	unless user.padherder_name.nil?
+		m.reply "#{user.registered_name}'s padherder account is at https://www.padherder.com/user/#{user.padherder_name}/monsters/"
+	end
     end
   end
 end

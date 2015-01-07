@@ -37,12 +37,16 @@ def export
   dump_model(Monster)
 end
 
+def run_upgrade
+  DataMapper.auto_upgrade!
+end
+
 def console
   binding.pry
 end
 
 def print_usage
-  puts "USAGE: ruby db_utils.rb [IMPORT|EXPORT|CONSOLE]"
+  puts "USAGE: ruby db_utils.rb [IMPORT|EXPORT|CONSOLE|MIGRATE]"
 end
 
 config = YAML.load(File.read("database_config.yaml"))
@@ -53,6 +57,8 @@ if command.nil?
   print_usage
 else
   case command
+    when 'migrate'
+      run_upgrade
     when 'import'
       import(true)
     when 'append'

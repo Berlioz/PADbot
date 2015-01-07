@@ -10,7 +10,12 @@ A(nother) Puzzle and Dragons IRC bot.
 4) modify database_config.yaml to match the created database in (3)  
 5) modify irc_config.yaml to tell the bot what to connect to  
 6) ruby db_utils.rb import  
-7) ruby PADbot.rb  
+7) extra postgres stuff:
+	a. enter postgres into your padbot db, then run the following to update your primary key sequence to the latest:
+	SELECT setval('user_id_seq', (SELECT MAX(id) FROM users));
+	b. Create a new column for padherder_name like so:
+	ALTER TABLE users ADD COLUMN padherder_name varchar(30);
+8) ruby PADbot.rb  
 
 ### Console Commands:  
 ruby db_utils.rb export: Exports User and Monster data to JSON files  
