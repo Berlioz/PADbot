@@ -48,7 +48,7 @@ Yes, this means if your username is alias you're SOL. Whoops.
     )
    m.reply "Created #{username} with FC #{sanitized_fc}."
    unless padherder_name.nil?
-	m.reply "#{username}'s padherder link is 'https://www.padherder.com/user/#{padherder_name}/monsters/'."
+	m.reply "#{username}'s padherder page is 'https://www.padherder.com/user/#{padherder_name}'."
    end
   end
 
@@ -70,6 +70,6 @@ Yes, this means if your username is alias you're SOL. Whoops.
 	original_user.padherder_name = padherder_name
 	original_user.save
 	m.reply "Associated #{original_user} with padherder username #{padherder_name}."
-	m.reply "#{original_user}'s padherder link is 'https://www.padherder.com/user/#{padherder_name}/monsters/'."
+	m.reply "#{original_user}'s padherder page is 'https://www.padherder.com/user/#{padherder_name}'."
   end
 end
