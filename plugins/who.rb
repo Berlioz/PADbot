@@ -15,7 +15,7 @@ class WhoPlugin < PazudoraPluginBase
     else
       m.reply "#{user.registered_name}'s code is #{user.pad_code}"
 	unless user.padherder_name.nil?
-		m.reply "#{user.registered_name}'s padherder account is at https://www.padherder.com/user/#{user.padherder_name}/monsters/"
+		m.reply "#{user.registered_name}'s padherder link is https://www.padherder.com/user/#{user.padherder_name}/monsters/"
 	end
     end
   end
