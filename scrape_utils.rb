@@ -7,307 +7,192 @@ require 'json'
 require 'data_mapper'
 require 'yaml'
 require 'colorize'
+require 'openssl'
+# I AM A TERRIBLE PERSON THANKS STACKOVERFLOW
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
-# PORTED FROM OLD ASTERBOT. NOT MAINTAINABLE CODE
-# todo: burn it to the ground
+class PadherderAPI
 
-class Puzzlemon
-  PUZZLEMON_BASE_URL = "http://www.puzzledragonx.com/en/"
-  TYPES = ["Dragon", "Balanced", "Physical", "Healer", "Attacker", "God", "Devil", "Evo Material", "Enhance Material", "Protected"]
-
-  # given an XP curve page, return the XP required to hit a level from 0
-  def self.xp_at_level(curve_page, level)
-    all_elements = curve_page.xpath("//table[@id='tablechart']//tbody//td")
-    rows = curve_page.xpath("//table[@id='tablechart']//tbody//td[@class='blue']")
-    row_index = all_elements.index(rows.select{|h| h.text == level.to_s}.first)
-    all_elements[row_index + 1].text.to_i
+  def pull_json(endpoint = '')
+    JSON.parse(open("https://www.padherder.com/api/#{endpoint}/").read)
   end
 
-  def self.xp_to_level(curve_page, from, to)
-    begin
-      xp_at_level(curve_page, to) - xp_at_level(curve_page, from)
-    rescue NoMethodError
-      nil
+  def calculate_predecessors
+    predecessors = {}
+    @evolutions.each do |id, branches|
+      branches.each do |branch|
+        unless branch["materials"] == [[155, 1], [156, 1], [157, 1], [158, 1], [159, 1]] # one of each lit
+          predecessors[branch["evolves_to"]] = id.to_i
+        end
+      end 
     end
+    predecessors
   end
 
-  def initialize(identifier, gacha=false)
-    if gacha
-      @doc = gacha_page
+  def initialize
+    @awakening_ids = {
+       "Enhanced HP"=>3,
+       "Enhanced Attack"=>4,
+       "Enhanced Heal"=>5,
+       "Reduce Fire Damage"=>6,
+       "Reduce Water Damage"=>7,
+       "Reduce Wood Damage"=>8,
+       "Reduce Light Damage"=>9,
+       "Reduce Dark Damage"=>10,
+       "Auto-Recover"=>11,
+       "Resistance-Bind"=>12,
+       "Resistance-Dark"=>13,
+       "Resistance-Jammers"=>14,
+       "Resistance-Poison"=>15,
+       "Enhanced Fire Orbs"=>16,
+       "Enhanced Water Orbs"=>17,
+       "Enhanced Wood Orbs"=>18,
+       "Enhanced Light Orbs"=>19,
+       "Enhanced Dark Orbs"=>20,
+       "Extend Time"=>21,
+       "Recover Bind"=>22,
+       "Skill Boost"=>23,
+       "Enhanced Fire Att."=>24,
+       "Enhanced Water Att."=>25,
+       "Enhanced Wood Att."=>26,
+       "Enhanced Light Att."=>27,
+       "Enhanced Dark Att."=>28,
+       "Two-Pronged Attack"=>29,
+       "Resistance-Skill Lock"=>30
+    }
+    @types = {
+      0 => 'Evo Material', 
+      1 => 'Balanced',
+      2 => 'Physical',
+      3 => 'Healer',
+      4 => 'Dragon', 
+      5 => 'God', 
+      6 => 'Attacker', 
+      7 => 'Devil', 
+      12 => 'Awoken Skill Material', 
+      13 => 'Protected', 
+      14 => 'Enhance Material'
+    }
+    @elements = {
+      0 => "Fire",
+      1 => "Water",
+      2 => "Wood",
+      3 => "Light",
+      4 => "Dark"
+    }
+    @active_skills = pull_json('active_skills')
+    @leader_skills = pull_json('leader_skills')
+    @awakenings = pull_json('awakenings')
+    @evolutions = pull_json('evolutions')
+    @predecessors = calculate_predecessors
+    @monsters = pull_json('monsters')
+    @experience_curves = JSON.parse(File.read("data/scraped_xp_curves.json"))
+  end
+
+  #(Active) Attack Stance - Light: Change Heart orbs to Light orbs. (5-11 turns)
+  def format_active_skill(active_skill_name)
+    skill_json = @active_skills.detect{|json| json["name"] == active_skill_name}
+    "(Active) #{active_skill_name}: #{skill_json['effect']} (#{skill_json['min_cooldown']}-#{skill_json['max_cooldown']} turns)"
+  end
+
+  #(Leader) Pride of the Valkyrie: Healer type cards ATK x2.
+  def format_leader_skill(leader_skill_name)
+    skill_json = @leader_skills.detect{|json| json["name"] == leader_skill_name}
+    "(Leader) #{leader_skill_name}: #{skill_json['effect']}"
+  end
+
+  def awakenings_to_pdx_ids(json_slug)
+    awakenings = json_slug["awoken_skills"]
+    awakenings.map { |padherder_id|
+      awakening = @awakenings.detect{|a| a["id"] == padherder_id}
+      awakening_name = awakening["name"]
+      @awakening_ids[awakening_name]
+    }
+  end
+  
+  #Fire/Water
+  def get_elements(json_slug)
+    element1 = @elements[json_slug["element"]]
+    if json_slug["element2"]
+      element1 + "/#{@elements[json_slug['element2']]}"
     else
-      @doc = pdx_page_from_identifier(identifier)
+      element1
     end
   end
 
-  def gacha_page
-    Nokogiri::HTML.parse(open(GACHA_URL).read)
-  end
-
-  def valid?
-    !@doc.nil?
-  end
-
-  def noko
-    @doc
-  end
-
-  def experience_delta(from)
-    links = @doc.xpath("//a").map{|element| element.attributes["href"]}.compact
-    curve_link = links.select{|link| link.value.include?("experiencechart")}.first
-    curve_page = Nokogiri::HTML(open(PUZZLEMON_BASE_URL + curve_link.value))
-    Puzzlemon.xp_to_level(curve_page, from, max_level)
-  end
-
-  # given an id or monster name, uses pdx's fuzzy matcher to find the pdx
-  # page for the referenced monster. Returns nil if the fuzzy matcher returns
-  # nothing e.g meteor dragon what the fuck seriously jesus christ
-  def pdx_page_from_identifier(identifier)
-    search_url = PUZZLEMON_BASE_URL + "monster.asp?n=#{URI.encode(identifier)}"
-    info = Nokogiri::HTML(open(search_url))
-
-    #Bypass puzzledragonx's "default to meteor dragon if you can't find the puzzlemon" mechanism
-    meteor_dragon_id = "211"
-    if info.css(".name").children.first.text == "Meteor Volcano Dragon" && !(identifier.start_with?("Meteor") || identifier == meteor_dragon_id)
-      return nil
+  # ["God", "Devil"]
+  def get_types(json_slug)
+    type1 = @types[json_slug["type"]]
+    if json_slug["type2"]
+      [type1 , "/#{@types[json_slug['type2']]}"]
     else
-      return info
+      [type1]
     end
   end
 
-  def pdx_descriptor
-    @doc.css("meta [name=description]").first.attributes["content"].text
+  def find_evolutions(internal_id)
+    data = @evolutions[internal_id.to_s]
+    out = data.map{|branch| branch["evolves_to"]}
+    out.length == 1 ? out.first : out
   end
 
-  # grab the name of a monster from its page the stupid way
-  def name
-    @doc.css(".name").children.first.text
+  def generate_mats_array(internal_id)
+    data = @evolutions[internal_id.to_s]
+    out = data.map{|branch| 
+      rv = []
+      branch["materials"].each do |mat|
+        mat.last.times do
+          rv << mat.first
+        end
+      end
+      rv
+    }
+    out.length == 1 ? out.first : out
   end
 
-  # find the URL of the image of the monster, and parse it for the monster's id
-  def id
-    avatar_image = @doc.xpath("//div[@class='avatar']").first.children.first
-    path = avatar_image.attributes["src"].value
-    /img\/book\/(\d+)\.png/.match(path)[1]
+  def max_xp(xp_curve, max_level)
+    curve = @experience_curves[xp_curve]
+    curve[max_level.to_s] 
   end
+  
+  def monster_data(json_slug)
+    internal_id = json_slug["id"]
 
-  # given a pazudora info page, find the max level of the monster
-  def max_level
-    lookup_stat("level").last
-  end
-
-  def max_xp
-    match = @doc.to_s.scan(/((\d|,)+) Exp to max/)
-    begin
-      return match[0][0].tr(',','').to_i
-    rescue NoMethodError
-      return 0
-    end
-  end
-
-  def stat_line(stat_name)
-    minmax = lookup_stat(stat_name.downcase)
-    "#{minmax.first}-#{minmax.last}"
-  end
-
-  def lookup_stat(stat_name)
-    stat_tr = @doc.xpath("//td[@class=\"#{ 'stat' + stat_name }\"]").first.parent
-    max_val = stat_tr.children[1].children.first.to_s
-    min_val = stat_tr.children[2].children.first.to_s
-
-    [max_val.to_i, min_val.to_i]
-  end
-
-  def awakenings
-    awakening_links = @doc.xpath("//a").select{|node| node.attributes["href"] && node.attributes["href"].value.include?("awokenskill.asp")}
-    awakening_links.map{|node| node.attributes["href"].value.match(/\d+/)[0]}
-  end
-
-  def skill
-    link = @doc.xpath("//a").select{|node| node.attributes["href"] && /\Askill.asp/ === node.attributes["href"].value}.first
-    return "No active skill.\n" if link.nil?
-    name = link.children.first.text
-    lines = link.parent.parent.parent.children.map(&:text)
-    index = lines.index("Active Skill:#{name}")
-
-    skillname = lines[index].split(":").last
-    cooldowns = lines.select{|l| l.include? "Cool Down"}.first
-    cooldowns = cooldowns.scan(/Cool Down:(\d+) Turns \( (\d+) min \)/).first
-    cooldowns = "(#{cooldowns.last}-#{cooldowns.first} turns)"
-
-    effect_line = lines.detect{|l| l.include?("Effects:")}
-    effect = effect_line.split(":").last
-
-    "(Active) #{skillname}: #{effect.strip} #{cooldowns}\n"
-  end
-
-  def leaderskill
-    link = @doc.xpath("//a").select{|link| link.attributes["href"] && link.attributes["href"].
-        value.match(/\Aleaderskill.asp?/)}.first
-    return "No leader skill.\n" if link.nil?
-    name = link.children.first.text
-    lines = link.parent.parent.parent.children.map(&:text)
-    index = lines.index("Leader Skill:#{name}")
-    if lines[index + 2]
-      effect = lines[index + 2].tr(')', '').tr('(', '').strip
-    end
-    if effect.nil? || effect == ""
-      effect = lines[index + 1].split(":").last
-    end
-
-    "(Leader) #{name}: #{effect}"
-  end
-
-  def stars
-    @doc.xpath("//div[@class='stars']//img").count
-  end
-
-  def element
-    desc = pdx_descriptor
-    desc.scan(/is a (.*?) element monster/)[0][0]
-  end
-
-  def cost
-    desc = pdx_descriptor
-    desc.scan(/costs (\d+?) units/)[0][0]
-  end
-
-  def type
-    type_line = @doc.xpath('//td[@class="ptitle"]').select{|node| node.children.to_s == "Type:"}.first
-    primary_type = type_line.parent.children[1].children.children.to_s
-    secondary_type = type_line.parent.children[2].children.children.to_s
-    secondary_type ? [primary_type] : [primary_type, secondary_type]
-
-    #binding.pry
-    #desc = pdx_descriptor
-    #basic_type = desc.scan(/stars (.*?) monster/)[0][0]
-
-    # attempt to retrieve a second type from PDX
-    #text_links = @doc.xpath("//a").map{|x| x.children ? x.children.detect{|y| y.is_a? Nokogiri::XML::Text}.to_s : nil }.compact
-    #attested_types = text_links.select{|t| TYPES.include?(t)}
-
-    #attested_types.uniq
-  end
-
-  def get_puzzledex_description
-    r = "No. #{id} #{name}, a #{stars}* #{element} #{type} monster.\n"
-    r += "Deploy Cost: #{cost}. Max level: #{max_level}, #{max_xp} XP to max.\n"
-    r += "HP #{stat_line("HP")}, ATK #{stat_line("ATK")}, RCV #{stat_line("RCV")}, BST #{stat_line("Total")}\n"
-    r += "#{skill}"
-    r += "#{leaderskill}"
-    r
-  end
-end
-
-def chain(pdx)
-  info = pdx.noko
-
-  # Compute the ID numbers of the puzzlemons in this particular chain
-  chain_divs = info.xpath("//td[@class='evolve']//div[@class='eframenum']")
-  chain_members = chain_divs.map{|div| (div.children.first.text)}
-  chain_members.map(&:to_i)
-end
-
-def ultimate_count(pdx)
-  pdx.noko.xpath("//td[@class='finalevolve nowrap']").count
-end
-
-def mats(pdx)
-  info = pdx.noko
-
-  # Compute the ID numbers of the puzzlemons in this particular chain
-  chain_divs = info.xpath("//td[@class='evolve']//div[@class='eframenum']")
-  chain_members = chain_divs.map{|div| div.children.first.to_s}
-
-  # Compute the location of the current puzzlemon in the chain
-  requirements = info.xpath("//td[@class='require']")
-  busty_requirements = info.xpath("//td[@class='finalevolve nowrap']")
-  ultimate_count = busty_requirements.count
-  index = chain_members.index(pdx.id)
-
-  if index == requirements.length && ultimate_count > 0
-    busty_requirements.map{|r| evo_material_list(r)}
-  elsif index.nil? || requirements.nil? || index >= requirements.length
-    []
-  else
-    evo_material_list(requirements[index])
-  end
-end
-
-def evo_material_list(td)
-  material_elements = td.children.select{|element| element.name == "a"}
-  material_elements.map do |element|
-    element.children.first.attributes["title"].value
-  end
-end
-
-def exp_curve(pdx)
-    links = pdx.noko.xpath("//a").map{|element| element.attributes["href"]}.compact
-    curve_link = links.select{|link| link.value.include?("experiencechart")}.first
-    return nil if curve_link.nil?
-    out = curve_link.value.scan(/.*?(\d+).*?/).first.first
-  out
-end
-
-def update_book(start = 0)
-  Monster.all.each do |m|
-    next unless m.qq\
-    id > start
-    p "updating ##{m.id} #{m.name}...".colorize(:green)
-    begin
-      pp scrape_monster(m.id, :update)
-    rescue Exception => e
-      p "ERROR updating! #{e.message}".colorize(:red)
-    end
-  end
-end
-
-def scrape_new_monsters
-  new_ids = new_monsters
-  p "Creating new entries for #{new_ids.count} monsters...".colorize(:light_blue)
-  new_ids.each do |id|
-    begin
-      p "updating #{id}".colorize(:green)
-      data = scrape_monster(id)
-      pp data
-    rescue Exception => e
-      p "Failed on ID #{id}: #{e}".colorize(:red)
-    end
-  end
-end
-
-def new_monsters
-  data = open("http://www.puzzledragonx.com/en/monsterbook.asp").read
-  all_ids = data.scan(/monster.asp\?n=(\d+)/).flatten.map(&:to_i)
-  all_ids.select{|id| Monster.get(id).nil?}.uniq
-end
-
-def scrape_monster(n, mode = :create)
-  pdx = Puzzlemon.new(n.to_s)
-    name = pdx.name
-    max_level = pdx.max_level
-    max_xp = pdx.max_xp.to_i
-    skill_text = pdx.skill
-    leader_text = pdx.leaderskill
-    awakenings = pdx.awakenings.map(&:to_i)
-    stars = pdx.stars
-    element = pdx.element
-    cost = pdx.cost.to_i
-    types = pdx.type
-    hp_min = pdx.lookup_stat("hp").first
-    hp_max = pdx.lookup_stat("hp").last
-    atk_min = pdx.lookup_stat("atk").first
-    atk_max = pdx.lookup_stat("atk").last
-    rcv_min = pdx.lookup_stat("rcv").first
-    rcv_max = pdx.lookup_stat("rcv").last
+    name = json_slug["name"]
+    jpname = json_slug["name_jp"]
+    max_level = json_slug["max_level"]
+    skill_text = format_active_skill(json_slug["active_skill"])
+    leader_text = format_leader_skill(json_slug["leader_skill"])
+    awakenings = awakenings_to_pdx_ids(json_slug)
+    stars = json_slug["rarity"]
+    element = get_elements(json_slug)
+    cost = json_slug["team_cost"]
+    types = get_types(json_slug)
+    hp_min = json_slug["hp_min"]
+    hp_max = json_slug["hp_max"]
+    rcv_min = json_slug["rcv_min"]
+    rcv_max = json_slug["rcv_max"]
+    atk_min = json_slug["atk_min"]
+    atk_max = json_slug["atk_max"]
     bst_min = hp_min + atk_min + rcv_min
     bst_max = hp_max + atk_max + rcv_max
-    evo_chain = chain(pdx)
-    evo_mats = mats(pdx)
-    curve = exp_curve(pdx)
-    out = {
-      :id => n,
+    curve = json_slug["xp_curve"].to_s
+    max_xp = max_xp(curve, max_level)
+
+    evolved = find_evolutions(internal_id)
+    unevolved = @predecessors[internal_id]
+    materials = generate_mats_array(internal_id)
+    if materials == [155, 156, 157, 158, 159] # one of each lit
+      evolved = nil
+      materials = nil
+    end
+
+    db_id = json_slug["pdx_id"] ? json_slug["pdx_id"] : internal_id
+
+    {
+      :id => db_id,
       :name => name,
       :max_level => max_level,
       :max_xp => max_xp,
@@ -326,43 +211,65 @@ def scrape_monster(n, mode = :create)
       :rcv_max => rcv_max,
       :bst_min => bst_min,
       :bst_max => bst_max,
-      :evo_chain => evo_chain,
-      :materials => evo_mats,
+      :evolved => evolved,
+      :unevolved => unevolved,
+      :materials => materials,
       :curve => curve
     }
+  end
 
-    if out[:materials].first.nil?
-      out[:materials] = nil
-    elsif out[:materials].first.is_a? Array
-      out[:materials] = out[:materials].map{|subar| subar.map{|s| s.gsub(/[^0-9]/,"").to_i }}
-    else
-      out[:materials] = out[:materials].map{|s| s.gsub(/[^0-9]/,"").to_i}
-    end
+  def parse_id(id)
+    m = @monsters.detect{|json| json["id"] == id.to_i || json["pdx_id"] == id.to_i}
+    monster_data(m)
+  end
 
-    chain = out[:evo_chain]
-    own_index = chain.index(n)
-    ultimate_count = ultimate_count(pdx)
-    if ultimate_count > 0 && own_index >= (chain.count - ultimate_count) #ultimate evolved mon
-      out[:unevolved] = chain[chain.count - ultimate_count - 1]
-      out[:evolved] = nil
-    elsif ultimate_count > 0 && own_index == (chain.count - ultimate_count - 1) #terminal before ultimate
-      out[:unevolved] = own_index == 0 ? nil : chain[own_index - 1] 
-      out[:evolved] = chain[(0 - ultimate_count)..-1]
+  def update_monster(id)
+    m = parse_id(id)
+    if Monster.get(m[:id])
+      p "Updating ##{m[:id]} #{m[:name]}"
+      Monster.get(m[:id]).update!(m)
     else
-      out[:unevolved] = own_index == 0 ? nil : chain[own_index - 1] unless own_index.nil?
-      out[:evolved] = own_index == chain.length - 1 ? nil : chain[own_index + 1] unless own_index.nil?
+      p "Creating ##{m[:id]} #{m[:name]}"
+      Monster.create!(monster_data(json_slug))   
+    end 
+  end
+
+  def full_parse
+    @monsters.each do |json_slug|
+      m = monster_data(json_slug)
+      if Monster.get(m[:id])
+        p "Updating ##{m[:id]} #{m[:name]}"
+        Monster.get(m[:id]).update!(m)
+      else
+        p "Creating ##{m[:id]} #{m[:name]}"
+        Monster.create!(monster_data(json_slug))   
+      end
     end
-    data = out.delete_if{|k,v| k == :evo_chain}
-    case mode
-      when :create
-        Monster.create!(data)
-      when :update
-        m = Monster.get(n)
-        m.update!(data)
-      when :test
-        #noop
+  end
+
+  def destructive_parse
+    p "Dropping #{Monster.count} entries; hope you know what you're doing..."
+    Monster.delete_all
+    @monsters.each do |json_slug|
+      m = monster_data(json_slug)
+      p "Creating ##{m[:id]} #{m[:name]}"
+      Monster.create!(monster_data(json_slug))
     end
-    data
+  end
+end
+
+
+def update_book(start = 0)
+  Monster.all.each do |m|
+    next unless m.qq\
+    id > start
+    p "updating ##{m.id} #{m.name}...".colorize(:green)
+    begin
+      pp scrape_monster(m.id, :update)
+    rescue Exception => e
+      p "ERROR updating! #{e.message}".colorize(:red)
+    end
+  end
 end
 
 config = YAML.load(File.read("database_config.yaml"))
