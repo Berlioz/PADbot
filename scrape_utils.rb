@@ -230,7 +230,7 @@ class PadherderAPI
       Monster.get(m[:id]).update!(m)
     else
       p "Creating ##{m[:id]} #{m[:name]}"
-      Monster.create!(monster_data(json_slug))   
+      Monster.create!(m)   
     end 
   end
 
