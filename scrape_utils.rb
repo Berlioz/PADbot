@@ -14,6 +14,7 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 Dir.glob("models/*.rb").each {|x| require_relative x}
 
 class PadherderAPI
+  ONE_OF_EACH_LIT = [[155, 1], [156, 1], [157, 1], [158, 1], [159, 1]]
 
   def pull_json(endpoint = '')
     JSON.parse(open("https://www.padherder.com/api/#{endpoint}/").read)
@@ -23,7 +24,11 @@ class PadherderAPI
     predecessors = {}
     @evolutions.each do |id, branches|
       branches.each do |branch|
-        unless branch["materials"] == [[155, 1], [156, 1], [157, 1], [158, 1], [159, 1]] # one of each lit
+        if branch["materials"] == ONE_OF_EACH_LIT
+          #no-op
+        elsif branch["materials"].include?(ONE_OF_EACH_LIT)
+          #THANKS VALKYRIES
+        else
           predecessors[branch["evolves_to"]] = id.to_i
         end
       end 
@@ -184,9 +189,16 @@ class PadherderAPI
     evolved = find_evolutions(internal_id)
     unevolved = @predecessors[internal_id]
     materials = generate_mats_array(internal_id)
+
     if materials == [155, 156, 157, 158, 159] # one of each lit
       evolved = nil
       materials = nil
+    end
+
+    if materials.include?([155, 156, 157, 158, 159])
+      i = materials.index([155, 156, 157, 158, 159])
+      evolved.delete_at(i)
+      materials.delete_at(i)
     end
 
     db_id = json_slug["pdx_id"] ? json_slug["pdx_id"] : internal_id
