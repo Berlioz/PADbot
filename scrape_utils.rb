@@ -126,7 +126,7 @@ class PadherderAPI
   def get_types(json_slug)
     type1 = @types[json_slug["type"]]
     if json_slug["type2"]
-      [type1 , "/#{@types[json_slug['type2']]}"]
+      [type1 , "#{@types[json_slug['type2']]}"]
     else
       [type1]
     end
@@ -275,5 +275,7 @@ end
 config = YAML.load(File.read("database_config.yaml"))
 DataMapper.setup(:default, config)
 DataMapper.finalize
+
+p = PadherderAPI.new
 
 binding.pry
