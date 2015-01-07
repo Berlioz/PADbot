@@ -183,22 +183,24 @@ class Monster
   end
 
   def get_evolved(type_string = nil)
-    if evolved.is_a? Array
+    if evolved.is_a? Array || evolved.length > 1
       case type_string
       when 'dark', 'd', 'black'
-        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and dark')}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?('/Dark')}
       when 'light', 'l', 'white'
-        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and light')}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?('/Light')}
       when 'wood', 'g', 'green'
-        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and wood')}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?('/Wood')}
       when 'water', 'w', 'blue'
-        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and water')}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?('/Water')}
       when 'fire', 'f', 'red'
-        m_id = evolved.detect{|id| Monster.get(id).element.include?(' and fire')}
+        m_id = evolved.detect{|id| Monster.get(id).element.include?('/Fire')}
       else
         m_id = evolved.first
       end
       Monster.get(m_id)
+    elsif evolved.is_a? Array
+      Monster.get(evolved.first)
     else
       evolved == nil ? nil : Monster.get(evolved)
     end
