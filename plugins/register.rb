@@ -38,17 +38,6 @@ Yes, this means if your username is alias you're SOL. Whoops.
     unless sanitized_fc.to_s.length == 9
       m.reply "ERROR: provided FC is not 9 digits long. Aborting." and return
     end
-    if padherder_name==nil
-    User.create(
-      :registered_name => username,
-      :irc_aliases => [],
-      :pad_code => sanitized_fc,
-      :is_admin => false,
-      :plugin_registrations => []
-    )
-   m.reply "Created #{username} with FC #{sanitized_fc}."
-
-    else
     User.create(
       :registered_name => username,
       :irc_aliases => [],
@@ -57,9 +46,10 @@ Yes, this means if your username is alias you're SOL. Whoops.
       :plugin_registrations => [],
       :padherder_name => padherder_name
     )
-    m.reply "Created #{username} with FC #{sanitized_fc}."
-    m.reply "#{username}'s padherder link is 'https://www.padherder.com/user/#{padherder_name}/monsters/'."
-    end
+   m.reply "Created #{username} with FC #{sanitized_fc}."
+   unless padherder_name.nil?
+	m.reply "#{username}'s padherder page is 'https://www.padherder.com/user/#{padherder_name}'."
+   end
   end
 
   def add_user_alias(m, username, new_alias)
@@ -80,6 +70,6 @@ Yes, this means if your username is alias you're SOL. Whoops.
 	original_user.padherder_name = padherder_name
 	original_user.save
 	m.reply "Associated #{original_user} with padherder username #{padherder_name}."
-	m.reply "#{original_user}'s padherder link is 'https://www.padherder.com/user/#{padherder_name}/monsters/'."
+	m.reply "#{original_user}'s padherder page is 'https://www.padherder.com/user/#{padherder_name}'."
   end
 end
