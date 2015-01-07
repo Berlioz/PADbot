@@ -18,6 +18,7 @@ class HelpPlugin < PazudoraPluginBase
   def display_known_plugins(m)
     plugins = PazudoraPluginBase.descendants
     names = plugins.map{|p| p.aliases.first}
+    names = names.compact
     msg = "Known plugins (!pad HELP name for detailed information): " + names.join(", ")
     m.reply msg
   end
