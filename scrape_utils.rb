@@ -98,12 +98,14 @@ class PadherderAPI
 
   #(Active) Attack Stance - Light: Change Heart orbs to Light orbs. (5-11 turns)
   def format_active_skill(active_skill_name)
+    return nil if active_skill_name.nil?
     skill_json = @active_skills.detect{|json| json["name"] == active_skill_name}
     "(Active) #{active_skill_name}: #{skill_json['effect']} (#{skill_json['min_cooldown']}-#{skill_json['max_cooldown']} turns)"
   end
 
   #(Leader) Pride of the Valkyrie: Healer type cards ATK x2.
   def format_leader_skill(leader_skill_name)
+    return nil if leader_skill_name.nil?
     skill_json = @leader_skills.detect{|json| json["name"] == leader_skill_name}
     "(Leader) #{leader_skill_name}: #{skill_json['effect']}"
   end
@@ -139,12 +141,14 @@ class PadherderAPI
 
   def find_evolutions(internal_id)
     data = @evolutions[internal_id.to_s]
+    return nil if data.nil?
     out = data.map{|branch| branch["evolves_to"]}
     out.length == 1 ? out.first : out
   end
 
   def generate_mats_array(internal_id)
     data = @evolutions[internal_id.to_s]
+    return nil if data.nil?
     out = data.map{|branch| 
       rv = []
       branch["materials"].each do |mat|
@@ -195,7 +199,7 @@ class PadherderAPI
       materials = nil
     end
 
-    if materials.include?([155, 156, 157, 158, 159])
+    if materials && materials.include?([155, 156, 157, 158, 159])
       i = materials.index([155, 156, 157, 158, 159])
       evolved.delete_at(i)
       materials.delete_at(i)
