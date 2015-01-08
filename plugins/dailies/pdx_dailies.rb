@@ -31,7 +31,8 @@ class WikiaDailies
   end
 
   def compress(dungeon_name)
-    SHORTCUTS[dungeon_name] ? SHORTCUTS[dungeon_name] : dungeon_name
+    rv = SHORTCUTS[dungeon_name] ? SHORTCUTS[dungeon_name] : dungeon_name
+    rv.gsub(" Descended", "")
   end
 
   def group_dragons(abbreviated = false)
@@ -101,7 +102,10 @@ class WikiaDailies
     rows.each do |row|
       if row.to_s.scan(/\d\d:\d\d/).count == 5
         (0..4).each do |i|
-          collector[i] << row.to_s.scan(/\d\d:\d\d/)[i].split(":").first
+          time = row.to_s.scan(/\d\d:\d\d/)[i]
+          display_value = time.split(":").first
+          display_value += ":30" if time.split(":").last.include?("30")
+          collector[i] << display_value
         end
       end
     end
