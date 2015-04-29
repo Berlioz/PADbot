@@ -236,6 +236,7 @@ class PadherderAPI
 
   def parse_id(id)
     m = @monsters.detect{|json| json["id"] == id.to_i || json["pdx_id"] == id.to_i}
+    m["xp_curve"] = 5000000 if m["xp_curve"] == 6000000
     monster_data(m)
   end
 
@@ -250,15 +251,22 @@ class PadherderAPI
     end 
   end
 
-  def full_parse
+  def full_parse(start = 0)
     @monsters.each do |json_slug|
-      m = monster_data(json_slug)
+      begin
+        json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 6000000
+        m = monster_data(json_slug)
+      rescue Exception => e
+        binding.pry
+        next
+      end
+      next if m[:id] < start
       if Monster.get(m[:id])
         p "Updating ##{m[:id]} #{m[:name]}"
-        Monster.get(m[:id]).update!(m)
+        Monster.get(m[:id]).update!(m) rescue binding.pry
       else
         p "Creating ##{m[:id]} #{m[:name]}"
-        Monster.create!(monster_data(json_slug))   
+        Monster.create!(monster_data(json_slug)) rescue binding.pry
       end
     end
   end
@@ -277,8 +285,7 @@ end
 
 def update_book(start = 0)
   Monster.all.each do |m|
-    next unless m.qq\
-    id > start
+    next unless m.id > start
     p "updating ##{m.id} #{m.name}...".colorize(:green)
     begin
       pp scrape_monster(m.id, :update)
