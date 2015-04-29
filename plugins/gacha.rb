@@ -113,7 +113,7 @@ class GachaPlugin < PazudoraPluginBase
 
       godfest_flags = argv.last[1..-1].upcase.split(',')
       godfest_flags.each do |flag|
-        unless @gachapon_smulator.pantheons.include?(flag)
+        unless flag == '@' ||  @gachapon_simulator.pantheons.include?(flag)
           r = "Fatal: unknown godfest tag #{flag}. Gachabot tags are now comma-delimited; eg !pad roll +j,g,@"
           m.reply r
           return
@@ -131,12 +131,16 @@ class GachaPlugin < PazudoraPluginBase
     if args == "tags" || args == "list_tags"
       r = "Use +[tags] to denote godfest; for example !pad pull +J2,G,O for a japanese 2.0/greek/odins fest.\n"
       r += "Known tags: [R]oman, [J/J2]apanese, [I/I2]ndian, [N]orse, [E/E2]gyptian, [G]reek, [A/A2]ngels, [D]evils, [C]hinese, [H]eroes\n"
-      r += " [O]dins, [M]etatrons, [S]onias, G[U]an Yus, [Z]huges, [K]alis, [3] Norns, [@]ll Godfest-Only"
+      r += "[O]dins, [M]etatrons, [S]onias, G[U]an Yus, [Z]huges, [K]alis, [3] Norns, [@]ll Godfest-Only"
       m.reply r
     elsif args.to_i != 0
       gods = []
       if args.to_i > 100
         m.reply "Not doing >100 rolls at once; apparently you jackasses can't have nice things."
+        return
+      end
+      if args.split(" ").length > 1
+        m.reply("#{args.split(' ').last} doesn't seem like a number; remember to prepend godfest tags with a '+'")
         return
       end
       args.to_i.times do
@@ -158,7 +162,7 @@ class GachaPlugin < PazudoraPluginBase
         r = "You rolled #{args} times (for $#{price}) and got jackshit all. Gungtrolled."
       else
         r = "You rolled #{args} times (for $#{price}) and got some gods:\n"
-        r += gods.join(", ")
+        r += gods.join("; ")
         if overflow > 0
           r += "...and #{overflow} more"
         end
