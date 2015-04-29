@@ -17,6 +17,10 @@ class Gachapon
     puts @pantheons
   end 
 
+  def pantheons
+    @pantheons.keys
+  end
+
   def roll_gold_eggs(godfest_tags)
     case select_gold_egg_type
       when :gold
@@ -105,18 +109,29 @@ class GachaPlugin < PazudoraPluginBase
   def respond(m, args)
     argv = args ? args.split(" ") : []
     if !argv.last.nil? && argv.last.match(/\+\S+/)
-      godfest_flags = argv.last.split(//)[1..-1].map(&:upcase)
+      #godfest_flags = argv.last.split(//)[1..-1].map(&:upcase)
+
+      godfest_flags = argv.last[1..-1].upcase.split(',')
+      godfest_flags.each do |flag|
+        unless @gachapon_smulator.pantheons.include?(flag)
+          r = "Fatal: unknown godfest tag #{flag}. Gachabot tags are now comma-delimited; eg !pad roll +j,g,@"
+          m.reply r
+          return
+        end
+      end
+
       args = args.split("+").first.strip
       if godfest_flags.include? "@"
-        godfest_flags += ["O", "M", "S"]
+        godfest_flags += ["O", "M", "S", "Z", "K", "U", "3"]
       end
     else
       godfest_flags = []
     end
 
     if args == "tags" || args == "list_tags"
-      r = "Use +[tags] to denote godfest; for example !pad pull +JGO for a japanese/greek/odins fest.\n"
-      r += "Known tags: [R]oman, [J]apanese, Japanese[2], [I]ndian, [N]orse, [E]gyptian, [G]reek, [O]dins, [A]ngels, [D]evils, [C]hinese, [M]etatrons, [H]eroes, [S]onias, [@]ll Godfest-Only"
+      r = "Use +[tags] to denote godfest; for example !pad pull +J2,G,O for a japanese 2.0/greek/odins fest.\n"
+      r += "Known tags: [R]oman, [J/J2]apanese, [I/I2]ndian, [N]orse, [E/E2]gyptian, [G]reek, [A/A2]ngels, [D]evils, [C]hinese, [H]eroes\n"
+      r += " [O]dins, [M]etatrons, [S]onias, G[U]an Yus, [Z]huges, [K]alis, [3] Norns, [@]ll Godfest-Only"
       m.reply r
     elsif args.to_i != 0
       gods = []
