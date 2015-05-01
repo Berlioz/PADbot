@@ -1,4 +1,6 @@
 class Gachapon
+  GODFEST_PANTHEONS = ["O", "M", "S", "Z", "K", "U", "3"]
+
   def initialize
     @leaf_eggs = Monster.all.select{|m| m.rem && m.stars == 3}.map(&:id)
     @silver_eggs = Monster.all.select{|m| m.rem && m.stars == 4}.map(&:id)
@@ -16,6 +18,10 @@ class Gachapon
     end
     puts @pantheons
   end 
+
+  def godfest_exclusives
+    GODFEST_PANTHEONS
+  end
 
   def pantheons
     @pantheons.keys
@@ -109,21 +115,28 @@ class GachaPlugin < PazudoraPluginBase
   def respond(m, args)
     argv = args ? args.split(" ") : []
     if !argv.last.nil? && argv.last.match(/\+\S+/)
-      #godfest_flags = argv.last.split(//)[1..-1].map(&:upcase)
+      args = args.split("+").first.strip
 
-      godfest_flags = argv.last[1..-1].upcase.split(',')
+      godfest_flags = argv.last[1..-1].upcase.split(',').uniq
       godfest_flags.each do |flag|
-        unless flag == '@' ||  @gachapon_simulator.pantheons.include?(flag)
+        unless flag == '@'q ||  @gachapon_simulator.pantheons.include?(flag)
           r = "Fatal: unknown godfest tag #{flag}. Gachabot tags are now comma-delimited; eg !pad roll +j,g,@"
           m.reply r
           return
         end
       end
 
-      args = args.split("+").first.strip
-      if godfest_flags.include? "@"
-        godfest_flags += ["O", "M", "S", "Z", "K", "U", "3"]
+      weighted_flags = []
+      godfest_flags.each do |flag|
+        if flag == "@"
+          weighted_flags += @gachapon_simulator.godfest_exclusives
+        elsif @gachapon_simulator.godfest_exclusives.include?(flag)
+          weighted_flags << flag
+        else
+          weighted_flags += [flag] * 3
+        end
       end
+      godfest_flags = weighted_flags
     else
       godfest_flags = []
     end
