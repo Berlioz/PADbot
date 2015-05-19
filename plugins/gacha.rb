@@ -1,5 +1,5 @@
 class Gachapon
-  GODFEST_PANTHEONS = ["O", "M", "S", "Z", "K", "U", "3"]
+  GODFEST_PANTHEONS = ["O", "M", "S", "Z", "K", "U", "N"]
 
   def initialize
     @leaf_eggs = Monster.all.select{|m| m.rem && m.stars == 3}.map(&:id)
@@ -35,7 +35,8 @@ class Gachapon
         choices = @pantheons.select{|k, v| !godfest_tags.include?(k)}.values.flatten
         get_monster(choices.sample)
       when :boosted_god
-        choices = @pantheons.select{|k, v| godfest_tags.include?(k)}.values.flatten
+        selected_pantheon = godfest_tags.select{|tag| @pantheons.keys.include?(tag)}.sample
+        choices = selected_pantheon ? @pantheons[selected_pantheon] : []
         choices.empty? ? get_monster(@all_gods.sample) : get_monster(choices.sample)
     end
   end
@@ -119,7 +120,7 @@ class GachaPlugin < PazudoraPluginBase
 
       godfest_flags = argv.last[1..-1].upcase.split(',').uniq
       godfest_flags.each do |flag|
-        unless flag == '@'q ||  @gachapon_simulator.pantheons.include?(flag)
+        unless flag == '@' ||  @gachapon_simulator.pantheons.include?(flag)
           r = "Fatal: unknown godfest tag #{flag}. Gachabot tags are now comma-delimited; eg !pad roll +j,g,@"
           m.reply r
           return
@@ -133,7 +134,7 @@ class GachaPlugin < PazudoraPluginBase
         elsif @gachapon_simulator.godfest_exclusives.include?(flag)
           weighted_flags << flag
         else
-          weighted_flags += [flag] * 3
+          weighted_flags += [flag] * 10
         end
       end
       godfest_flags = weighted_flags
@@ -143,8 +144,8 @@ class GachaPlugin < PazudoraPluginBase
 
     if args == "tags" || args == "list_tags"
       r = "Use +[tags] to denote godfest; for example !pad pull +J2,G,O for a japanese 2.0/greek/odins fest.\n"
-      r += "Known tags: [R]oman, [J/J2]apanese, [I/I2]ndian, [N]orse, [E/E2]gyptian, [G]reek, [A/A2]ngels, [D]evils, [C]hinese, [H]eroes\n"
-      r += "[O]dins, [M]etatrons, [S]onias, G[U]an Yus, [Z]huges, [K]alis, [3] Norns, [@]ll Godfest-Only"
+      r += "Known tags: [R]oman, [J/J2]apanese, [I/I2]ndian, [N]orse, [E/E2]gyptian, [G]reek, [A/A2]ngels, [D]evils, [C]hinese, [3] Kingdoms, [H]eroes\n"
+      r += "[O]dins, [M]etatrons, [S]onias, G[U]an Yus, [Z]huges, [K]alis, [M]oirae, [@]ll Godfest-Only"
       m.reply r
     elsif args.to_i != 0
       gods = []
