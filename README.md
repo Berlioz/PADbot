@@ -13,7 +13,7 @@ A(nother) Puzzle and Dragons IRC bot.
 7) extra postgres stuff:
 
 	a. enter postgres into your padbot db, then run the following to update your primary key sequence to the latest:
-	SELECT setval('user_id_seq', (SELECT MAX(id) FROM users));
+	SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 
 8) ruby PADbot.rb  
 
