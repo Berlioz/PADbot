@@ -40,7 +40,6 @@ class SkillupPlugin < PazudoraPluginBase
           return
         end
       end    
->>>>>>> bbd817b967e6e9fb919f94f628afcb0ab654cc0d
     rescue Exception => r
       m.reply("Bad query: #{e.message}") 
     end
