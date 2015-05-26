@@ -32,15 +32,15 @@ class SkillupPlugin < PazudoraPluginBase
     end
 
     begin
-      (1..250).each do |i|
+      (k..250).each do |i|
         failure_chance = Distribution::Binomial::cdf(k-1, i, 0.2)
         success_chance = 1.0 - failure_chance
         if success_chance > c
-          m.reply("Gathering #{i} skill-up fodder will give you a #{success_chance} chance of #{k} skill-ups.")
+          m.reply("Gathering #{i} skill-up fodder will give you a #{success_chance.round(3)} chance of #{k} skill-ups.")
           return
         end
       end    
-    rescue Exception => r
+    rescue Exception => e
       m.reply("Bad query: #{e.message}") 
     end
   end
