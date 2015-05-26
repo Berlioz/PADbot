@@ -1,6 +1,6 @@
 class WhoPlugin < PazudoraPluginBase
   def self.aliases
-    ['who', 'code', 'fc', 'padherder','herder','freddie']
+    ['who', 'code', 'fc', 'padherder','herder','whois']
   end
 
   def self.helpstring

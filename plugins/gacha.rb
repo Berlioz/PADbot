@@ -112,6 +112,16 @@ class GachaPlugin < PazudoraPluginBase
     money
   end
 
+  # determine whether or not asterbot should complement you on rolling something
+  def worthwhile?(monster)
+    # sonias, colored valks
+    if [911, 913, 1088, 972, 982, 1270, 1516].include?(monster.id)
+      true
+    else
+      monster.stars >= 5 && monster.types.include?("God") && !monster.name.include?("Verche")
+    end
+  end
+
   # Horrific. From old Asterbot. Refactor.
   def respond(m, args)
     argv = args ? args.split(" ") : []
@@ -143,7 +153,7 @@ class GachaPlugin < PazudoraPluginBase
     end
 
     if args == "tags" || args == "list_tags"
-      r = "Use +[tags] to denote godfest; for example !pad pull +J2,G,O for a japanese 2.0/greek/odins fest.\n"
+      r = "Use +[tags] to denote godfest; for example !pad roll +J2,G,O for a japanese 2.0/greek/odins fest.\n"
       r += "Known tags: [R]oman, [J/J2]apanese, [I/I2]ndian, [N]orse, [E/E2]gyptian, [G]reek, [A/A2]ngels, [D]evils, [C]hinese, [3] Kingdoms, [H]eroes\n"
       r += "[O]dins, [M]etatrons, [S]onias, G[U]an Yus, [Z]huges, [K]alis, [M]oirae, [@]ll Godfest-Only"
       m.reply r
@@ -193,7 +203,7 @@ class GachaPlugin < PazudoraPluginBase
         name = e_a_r_t_h_g_o_l_e_m(name)
       end
 
-      if stars >= 5 && types.include?("God") && !monster.name.include?("Verche")
+      if worthwhile?(monster)
         msg =  (stars == 6 ? "Lucky bastard!" : "Lucky bastard.")
       elsif stars == 5
         msg = "Meh."

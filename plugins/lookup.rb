@@ -60,7 +60,7 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
     elsif ['hp', 'atk', 'rv', 'bst'].include?(key)
       "#{lead} #{m.send(key + '_min')} - #{m.send(key + '_max')}" 
     else
-      "Malforned query; keyword #{key} not recognized."
+      "No query key found; use !lookup to display all information about a monster."
     end 
   end
 
