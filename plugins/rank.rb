@@ -44,7 +44,9 @@ Reverse lookup also possible: !puzzlemon rank stamina 100 computes when you will
         r += ".\nWarning: PDX experience values missing for ranks >= #{Rank.last.id}"
       else
         delta_exp = omega[:exp_total].to_i - alpha[:exp_total].to_i
-        r += ", experience +#{delta_exp}."
+        kog_stam = delta_exp / 2265
+        r += ", experience +#{delta_exp}. That's approximately #{kog_stam} stamina spent on KoG!"
+        r += " That's over #{kog_stam / 288} straight days. Have fun!"
       end
     else
       r = "Usage: !pad rank n for data about rank n, !pad rank x y to compute deltas between x and y, !pad <field> n for reverse lookup"

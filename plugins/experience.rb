@@ -32,9 +32,9 @@ class ExperiencePlugin < PazudoraPluginBase
       monster = Monster.get(monster.evolved)
       xp = experience_to_max(monster, starting_level)
     end
-    pengies = (xp / 45000.0).round(2)
-    offcolor = (xp / 30000.0).round(2)
-    m.reply "To get #{monster} from #{starting_level} to #{monster.max_level} takes #{xp}xp, or #{pengies} (#{offcolor} offcolor) pengdras. Get farming!"
+    pengies = (xp / 150000.0).round(2)
+    offcolor = (xp / 100000.0).round(2)
+    m.reply "To get #{monster} from #{starting_level} to #{monster.max_level} takes #{xp}xp, or #{pengies} (#{offcolor} offcolor) super kings. Get farming!"
   end
 
   def experience_to_max(monster, starting_level)
