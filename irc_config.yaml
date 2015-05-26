@@ -6,9 +6,10 @@ development:
   - ! '#asterbot-staging'
 production:
 - server: irc.freenode.org
-  nick: asterbot-kai
+  nick: asterbot
   channels:
   - ! '#csuapad'
+  - ! '#redditpad'
 - server: irc.synirc.net
   nick: asterbot-mk2
   channels:
