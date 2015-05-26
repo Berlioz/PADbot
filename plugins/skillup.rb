@@ -29,17 +29,18 @@ class SkillupPlugin < PazudoraPluginBase
     elsif c < 0.01 || c > 0.99
       m.reply("requested confidence is outside 1% - 99% bounds")
       return
-    begin
-
-    (1..250).each do |i|
-      failure_chance = Distribution::Binomial::cdf(k-1, i, 0.2)
-      success_chance = 1.0 - failure_chance
-      if success_chance > c
-        m.reply("Gathering #{i} skill-up fodder will give you a #{success_chance} chance of #{k} skill-ups.")
-        return
-      end
     end
-      
+
+    begin
+      (1..250).each do |i|
+        failure_chance = Distribution::Binomial::cdf(k-1, i, 0.2)
+        success_chance = 1.0 - failure_chance
+        if success_chance > c
+          m.reply("Gathering #{i} skill-up fodder will give you a #{success_chance} chance of #{k} skill-ups.")
+          return
+        end
+      end    
+>>>>>>> bbd817b967e6e9fb919f94f628afcb0ab654cc0d
     rescue Exception => r
       m.reply("Bad query: #{e.message}") 
     end
