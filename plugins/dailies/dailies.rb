@@ -17,26 +17,23 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
   def respond(m, args)
     if args
       timezone = args.to_i      
-    else
-      timezone = -8
     end
     w = WikiaDailies.new
     reward = w.dungeon_reward
     groups = w.get_dailies(timezone)
     rv = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}
     rv = rv.join(" | ")
-    m.reply "Today's dungeon is #{reward}"
+    m.reply "#{w.today} Urgents: #{reward}"
     m.reply rv
     specials = w.specials
     if specials.count > 0
       m.reply "Special dungeon(s): #{specials.join(', ')}"
     end
-    supers = w.group_dragons
-    if supers.count > 0
-      m.reply supers.join(', ')
-    end
+    m.reply "warning: timezones not currently supported. times are pacific GMT #{Time.now.utc_offset / 3600}"
   end
 end
+
+=begin
 
 class TomorrowPlugin < PazudoraPluginBase
   def self.helpstring
@@ -143,3 +140,5 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     
   end
 end
+
+=end

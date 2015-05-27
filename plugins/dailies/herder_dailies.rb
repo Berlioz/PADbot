@@ -1,0 +1,3 @@
+class PadherderDailies
+
+end
