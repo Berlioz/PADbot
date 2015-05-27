@@ -182,7 +182,7 @@ A(nother) Puzzle and Dragons IRC bot.
 ```
 
 ### On Monster lookup
-Any command which accepts a <monster> argument is enabled for fuzzy lookup. Fuzzy lookup allows you to correctly select the appropriate monster without ambiguity or confusion, without having to memorize fancy evolution titles or comma placement.  
+Any command which accepts a [monster] argument is enabled for fuzzy lookup. Fuzzy lookup allows you to correctly select the appropriate monster without ambiguity or confusion, without having to memorize fancy evolution titles or comma placement.  
 
 To specify a monster for PADbot, you may provide either a string or an integer. Integers represent the same internal ID that PAD uses; 1 represents Tyrra, and so on. When given a string argument, PADbot will first attempt substring matches and then edit distance matches. Substring matches try to find a monster whose full name exactly includes the search term and then select the option which is closest to the search term in edit distance (this tends to favor unevolved gods, who lack fancy anime titles). Failing that, it will attempt to find a monster whose name is relatively close to the search term, again using edit distance. This can lead to amusing side-effects: for example, searching "trash" results in Raoh, since the two are only edit distance 2 apart (ditch the t and change the s to an o in "trash.") 
 
@@ -205,6 +205,18 @@ Here are some examples:
 ```
 
 There are several monsters which remain impossible to practically specify using this syntax, generally as a result of monsters sharing the same name but having different colors (odins, metatrons, etc) or incredible ambiguity (the chibi monsters). Please use the !which command as a workaround, to find the correct ID to input.
+
+```
+<Asterism> !pad which isis
+<asterbot> Matches found: #492 Isis (5*), #493 Water Deity, Holy Isis (6*), #996 Blue Moon Sea Deity, Isis (7*), #997 Shining Sea Deity, Isis (7*), #2017 Scholarship Student Isis (7*), #2023 water deity, holy isis (4*)
+<Asterism> !pad lookup 2023
+<asterbot> [-] #2023 water deity, holy isis, a 4* Water/Water God monster.
+<asterbot> Deploy Cost: 12. Max level: 70, 1663863 XP to max.
+<asterbot> Awakenings: Enhanced Water Att., Resistance-Bind, Resistance-Bind
+<asterbot> HP 696-1671, ATK 447-893, RCV 234-492, BST 1377-3056
+<asterbot> (Active) Quick Heal: Recover RCV x3 HP. Bind recovery for 2 turns. (3-8 turns)
+<asterbot> (Leader) ないるのめぐみ: ATK x3 when attacking with 3 of following orb types: Fire, Water, Wood, Light & Dark.
+```
 
 ### Current Setup:
 1) git clone  
