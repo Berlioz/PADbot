@@ -18,7 +18,7 @@ class WikiaDailies
                "King Carnival" => "Kings" }
 
   def initialize(offset=0)
-    @today = Time.now.getlocal("-08:00") + (86400 * offset)
+    @today = Time.now.getlocal("-07:00")
     @wikia = Nokogiri::HTML(open("http://padwiki.net/wiki/Homepage/NASchedule"))
   end
 
@@ -39,7 +39,7 @@ class WikiaDailies
   def specials
     table = @wikia.xpath("//table").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
-    rows_to_read = today_header.attributes["rowspan"].value.to_i * 2
+    rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
     rows = table.children.slice(starting_index, rows_to_read)
 
@@ -59,7 +59,7 @@ class WikiaDailies
   def dungeon_reward
     table = @wikia.xpath("//table").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
-    rows_to_read = today_header.attributes["rowspan"].value.to_i * 2
+    rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
     rows = table.children.slice(starting_index, rows_to_read)
     rewards = []
@@ -76,7 +76,7 @@ class WikiaDailies
   def get_dailies(timezone = -8)
     table = @wikia.xpath("//table").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
-    rows_to_read = today_header.attributes["rowspan"].value.to_i * 2
+    rows_to_read = today_header.attributes["rowspan"].value.to_i
     starting_index = table.children.index(today_header.parent)
     rows = table.children.slice(starting_index, rows_to_read)
 
