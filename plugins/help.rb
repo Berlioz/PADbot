@@ -19,7 +19,8 @@ class HelpPlugin < PazudoraPluginBase
     plugins = PazudoraPluginBase.descendants
     names = plugins.map{|p| p.aliases.first}
     names = names.compact
-    msg = "Known plugins (!pad HELP name for detailed information): " + names.join(", ")
+    msg = "Asterbot command documentation at https://github.com/Berlioz/PADbot"
+    msg += "\nKnown plugins (!pad HELP plugin for in-channel help): " + names.join(", ")
     m.reply msg
   end
 

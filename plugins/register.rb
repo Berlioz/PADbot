@@ -48,7 +48,7 @@ Yes, this means if your username is alias you're SOL. Whoops.
     )
    m.reply "Created #{username} with FC #{sanitized_fc}."
    unless padherder_name.nil?
-	m.reply "#{username}'s padherder page is 'https://www.padherder.com/user/#{padherder_name}'."
+	m.reply "#{username}'s padherder page is https://www.padherder.com/user/#{padherder_name}"
    end
   end
 

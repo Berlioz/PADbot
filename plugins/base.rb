@@ -11,7 +11,7 @@ class PazudoraPluginBase
   end
 
   def self.helpstring
-    "No HELP information defined for #{self.name}. Bug Asterism about it."
+    "No helpstring for #{self.name}. It might be documented on https://github.com/Berlioz/PADbot"
   end
 
   def self.aliases
