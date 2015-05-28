@@ -80,7 +80,10 @@ end
 
 class GachaPlugin < PazudoraPluginBase
   def self.helpstring
-    "No HELP information defined for #{self.name}. Bug Asterism about it."
+    "!pad roll: simulate a single pull
+!pad roll <monster_name>|\"exact_name\"|#id|/regexp/: pull for a specific monster.
+!pad roll n: simulate n pulls
+remember to use godfest tags! !pad tags for help"
   end
 
   def self.aliases
@@ -192,7 +195,7 @@ class GachaPlugin < PazudoraPluginBase
         end
       end
       m.reply r
-    elsif args.nil?
+    elsif args.nil? || args.strip.length == 0
       monster = @gachapon_simulator.roll(godfest_flags)
       stars = monster.stars
       types = monster.types
@@ -216,6 +219,7 @@ class GachaPlugin < PazudoraPluginBase
       m.reply(r)
     else
       regex = false
+      exact_match = false
       identifier = args.strip.downcase
       if identifier.match(/\A\/.*\/\z/)
         regex = true
@@ -223,14 +227,23 @@ class GachaPlugin < PazudoraPluginBase
       elsif Monster::NAME_SPECIAL_CASES.keys.include?(identifier)
         target = Monster.fuzzy_search(identifier)
         identifier = target.name.downcase
+      elsif identifier[0] == '#' && identifier[1..-1].to_i != 0
+        target = Monster.get(identifier[1..-1].to_i)
+        identifier = target.name.downcase
+      elsif identifier[0] == '"' && identifier[-1].to_i == '"'
+        exact_match = true
+        identifier = identifier[1..-2]
+        m.reply("-.-") and return if identifier.length == 0
+      end
       end
       attempts = 0
       monster = nil
       loop do
         attempts = attempts + 1
         monster = @gachapon_simulator.roll(godfest_flags)
-        break if !regex && (monster.name.downcase.include?(identifier) || monster.id.to_s == identifier)
+        break if !regex && !exact_match && (monster.name.downcase.include?(identifier)
         break if regex && (monster.name.downcase.match(identifier) || monster.name.match(identifier))
+        break if !regex && monster.name.downcase == identifier.downcase
         m.reply("Unable to roll #{identifier}") and return if attempts == 1000
       end
       price = stone_price(attempts * 5)
