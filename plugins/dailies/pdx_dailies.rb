@@ -66,7 +66,7 @@ class WikiaDailies
 
     rows.each do |row|
       if row.to_s.scan(/\d\d:\d\d/).count == 5 
-        rewards << row.children[1].children.first.attributes["title"].value rescue nil 
+        rewards << row.children[0].children.first.attributes["title"].value rescue nil 
       end
     end
     rewards = rewards.compact.map {|name| compress(name)}

@@ -29,7 +29,7 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
     if specials.count > 0
       m.reply "Special dungeon(s): #{specials.join(', ')}"
     end
-    m.reply "warning: timezones not currently supported. times are pacific GMT #{Time.now.utc_offset / 3600}"
+    m.reply "warning: timezones not currently supported. times are pacific -0700"
   end
 end
 
