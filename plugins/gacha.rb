@@ -2,13 +2,31 @@ class Gachapon
   GODFEST_PANTHEONS = ["O", "M", "S", "Z", "K", "U", "N"]
 
   def initialize
-    @leaf_eggs = Monster.all.select{|m| m.rem && m.stars == 3}.map(&:id)
-    @silver_eggs = Monster.all.select{|m| m.rem && m.stars == 4}.map(&:id)
-    @gold_eggs = Monster.all.select{|m| m.rem && m.stars = 5 && m.pantheon.nil?}.map(&:id)
+    @leaf_eggs = []
+    @silver_eggs = []
+    @gold_eggs = []
+    @reachable_names = []
+
+    Monster.all.select{|m| m.rem && m.stars == 3}.each do |m|
+      @leaf_eggs << m.id
+      @reachable_names << m.name.downcase
+    end
+
+    Monster.all.select{|m| m.rem && m.stars == 4}.each do |m|
+      @silver_eggs << m.id
+      @reachable_names << m.name.downcase
+    end
+
+    Monster.all.select{|m| m.rem && m.stars == 5}.each do |m|
+      @gold_eggs << m.id
+      @reachable_names << m.name.downcase
+    end
+
     gods = Monster.all.select{|m| m.rem && m.pantheon}
     @all_gods = gods.map(&:id)
     @pantheons = {}
     gods.each do |god|
+      @reachable_names << god.name.downcase
       pantheon = god.pantheon
       if @pantheons[pantheon]
         @pantheons[pantheon] << god.id
@@ -25,6 +43,10 @@ class Gachapon
 
   def pantheons
     @pantheons.keys
+  end
+
+  def reachable?(name)
+    @reachable_names.detect{|n| n.include?(name.downcase)}
   end
 
   def roll_gold_eggs(godfest_tags)
@@ -230,18 +252,20 @@ remember to use godfest tags! !pad tags for help"
       elsif identifier[0] == '#' && identifier[1..-1].to_i != 0
         target = Monster.get(identifier[1..-1].to_i)
         identifier = target.name.downcase
-      elsif identifier[0] == '"' && identifier[-1].to_i == '"'
+      elsif identifier[0] == '"' && identifier[-1] == '"'
         exact_match = true
         identifier = identifier[1..-2]
         m.reply("-.-") and return if identifier.length == 0
       end
+      unless regex || exact_match
+        m.reply("#{args.strip.downcase} doesn't correspond to any known REM monster") and return unless @gachapon_simulator.reachable?(identifier)
       end
       attempts = 0
       monster = nil
       loop do
         attempts = attempts + 1
         monster = @gachapon_simulator.roll(godfest_flags)
-        break if !regex && !exact_match && (monster.name.downcase.include?(identifier)
+        break if !regex && !exact_match && (monster.name.downcase.include?(identifier))
         break if regex && (monster.name.downcase.match(identifier) || monster.name.match(identifier))
         break if !regex && monster.name.downcase == identifier.downcase
         m.reply("Unable to roll #{identifier}") and return if attempts == 1000
