@@ -252,11 +252,13 @@ remember to use godfest tags! !pad tags for help"
       elsif identifier[0] == '#' && identifier[1..-1].to_i != 0
         target = Monster.get(identifier[1..-1].to_i)
         identifier = target.name.downcase
-      elsif identifier[0] == '"' && identifier[-1].to_i == '"'
+      elsif identifier[0] == '"' && identifier[-1] == '"'
         exact_match = true
         identifier = identifier[1..-2]
         m.reply("-.-") and return if identifier.length == 0
       end
+      unless regex || exact_match
+        m.reply("#{args.strip.downcase} doesn't correspond to any known REM monster") and return unless @gachapon_simulator.reachable?(identifier)
       end
       unless regex || exact_match
         m.reply("#{args.strip.downcase} doesn't correspond to any known REM monster") and return unless @gachapon_simulator.reachable?(identifier)
