@@ -6,18 +6,30 @@ require 'nokogiri'
 
 class DailiesPlugin < PazudoraPluginBase
   def self.helpstring
-"!pad dailies TZ: Displays a table of all known hourly dungeons for today, from PDX.
-TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
+"!pad dailies [group] [timezone]: displays data on current urgent dungeons"
   end
 
   def self.aliases
-    ['dailies']
+    ['dailies', 'urgents']
   end
 
   def respond(m, args)
-    if args
-      timezone = args.to_i      
+    argv = args.split
+    group = nil
+    timezone = -7
+    if arv.length == 2
+      group = argv.first.upcase
+      timezone = argv.last.to_i
+    elsif argv.length == 1 && ["A", "B", "C", "D", "E"].include?(argv.first.upcase)
+      group = argv.first.upcase
+    elsif argv.length == 1
+      timezone = argv.first.to_i
     end
+
+    group ? group_schedule(m, group, timezone) : full_schedule(m, timezone)
+  end
+
+  def full_schedule(m, timezone)
     w = WikiaDailies.new
     reward = w.dungeon_reward
     groups = w.get_dailies(timezone)
@@ -30,6 +42,18 @@ TZ can be any integer GMT offset (e.g -3), defaults to GMT-7 Pacific DST"
       m.reply "Special dungeon(s): #{specials.join(', ')}"
     end
     m.reply "warning: timezones not currently supported. times are pacific -0700"
+  end
+
+  def group_scedule(m, group, timezone)
+    w = WikiaDailies.new
+    reward = w.dungeon_reward
+    groups = w.get_dailies(timezone)
+    index = {"A" => 0, "B" => 1, "C" => 2, "D" => 3, "E" => 4}[group]
+    rv = ["#{w.today} Urgents (#{group}): "]
+    reward.length.times do |n|
+      rv << "#{reward[n]} @ #{groups[n]}"
+    end
+    m.reply rv.join(', ')
   end
 end
 
