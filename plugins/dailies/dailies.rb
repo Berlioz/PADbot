@@ -14,10 +14,11 @@ class DailiesPlugin < PazudoraPluginBase
   end
 
   def respond(m, args)
+    args = "" unless args
     argv = args.split
     group = nil
     timezone = -7
-    if arv.length == 2
+    if argv.length == 2
       group = argv.first.upcase
       timezone = argv.last.to_i
     elsif argv.length == 1 && ["A", "B", "C", "D", "E"].include?(argv.first.upcase)
@@ -44,16 +45,16 @@ class DailiesPlugin < PazudoraPluginBase
     m.reply "warning: timezones not currently supported. times are pacific -0700"
   end
 
-  def group_scedule(m, group, timezone)
+  def group_schedule(m, group, timezone)
     w = WikiaDailies.new
-    reward = w.dungeon_reward
-    groups = w.get_dailies(timezone)
+    reward = w.dungeon_reward.split(", ") #lmao
     index = {"A" => 0, "B" => 1, "C" => 2, "D" => 3, "E" => 4}[group]
+    groups = w.get_dailies(timezone)[index]
     rv = ["#{w.today} Urgents (#{group}): "]
     reward.length.times do |n|
       rv << "#{reward[n]} @ #{groups[n]}"
     end
-    m.reply rv.join(', ')
+    m.reply rv[0] + rv[1..-1].join(', ')
   end
 end
 

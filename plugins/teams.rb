@@ -23,12 +23,13 @@ class TeamsPlugin < PazudoraPluginBase
       rv[team["name"]] = {
         :leader => monsters.detect{|m| m["id"] == team["leader"]},
         :sub1 => monsters.detect{|m| m["id"] == team["sub1"]},
-        :sub2 => monsters.detect{|m| m["id"] == team["sub1"]},
-        :sub3 => monsters.detect{|m| m["id"] == team["sub1"]},
-        :sub4 => monsters.detect{|m| m["id"] == team["sub1"]},
+        :sub2 => monsters.detect{|m| m["id"] == team["sub2"]},
+        :sub3 => monsters.detect{|m| m["id"] == team["sub3"]},
+        :sub4 => monsters.detect{|m| m["id"] == team["sub4"]},
         :friend_leader => Monster.get(team["friend_leader"])
       }
     end
+    rv
   end
 
   def pretty_print(team)
@@ -44,6 +45,9 @@ class TeamsPlugin < PazudoraPluginBase
 
   def pretty_print_monster(m_json)
     name = Monster.get(m_json["monster"]).name
+    if name.split(", ").length > 1
+      name = name.split(", ").last
+    end
     plus = m_json["plus_hp"] + m_json["plus_atk"] + m_json["plus_rcv"]
     skill = m_json["current_skill"]
     "#{name} +#{plus} slvl #{skill}"
@@ -60,7 +64,7 @@ class TeamsPlugin < PazudoraPluginBase
     # 3) YOLO
     identifier, team_name = args.split(nil, 2)
     user = User.find_by_padherder_name(identifier)
-    user = User.fuzzy_search(identifier) if user.nil?
+    user = User.fuzzy_lookup(identifier) if user.nil?
     padherder_name = user ? user.padherder_name : nil
     padherder_name = identifier if padherder_name.nil?
 
