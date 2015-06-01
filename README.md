@@ -48,6 +48,16 @@ A(nother) Puzzle and Dragons IRC bot.
 <Asterism> !pad who asterbot
 <asterbot> asterbot's code is 123456789
 ```
+* !pad team [username]: prints the teams registered to a user on PADherder
+```
+<Asterism> !pad teams freddie
+<asterbot> freddie teams: Horus Farm, Parvati v2.0, Mechashiva
+```
+* !pad team [username] [team_name]: prints details about a specific team on the user's PADherder
+```
+<Asterism> !pad teams freddie mechashiva
+<asterbot> Mechashiva: Shiva +0 slvl 1 / the Blazing Swordsman +3 slvl 6 / Gigas the Great +1 slvl 7 / Homura +1 slvl 5 / Horus +297 slvl 1 / friend Demolishing Creator, Shiva
+```
 * !pad group [username]: prints the urgent dungeon group associated with a given user's friend code in NA.
 ```
 <Asterism> !pad group asterism
