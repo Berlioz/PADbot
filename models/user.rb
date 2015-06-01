@@ -13,6 +13,10 @@ class User
     self.all.select{|u| u.plugin_registrations.include?(plugin.class.name)}
   end
 
+  def self.find_by_padherder_name(padherder)
+    self.first(:padherder_name => padherder)
+  end
+
   def self.fuzzy_lookup(identifier)
     user = self.first(:registered_name => identifier)
 
