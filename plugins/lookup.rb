@@ -46,6 +46,79 @@ Queries: NAME, ID, STARS, ELEMENT, TYPES, COST, AWAKENINGS, SKILL, LEADER, STATS
 Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
   end
 
+  # generic: active, leader, atk, hp, rcv, stars, cost
+  # types, element, awakenings are inclusion queries
+  # special: rem, evolved
+  def fake_sql(message, args)
+    terms = args.split[1..-1]
+    argv = []
+    terms.each do |term|
+      m = /(\w+)(=|==|>|>=|<|<=|!=|\.like\.|\.include\.)(\w+)/.match(term)
+      next unless m
+      argv << {:key => m[1].downcase, :operator => m[2].downcase, :value => m[3].downcase}
+    end
+
+    p argv
+    m = Monster.all
+    #handle with sql
+    argv.each do |arg|
+      key = arg[:key]
+      if ['stars', 'cost'].include?(key)
+        op = {'=' => 'to_sym', '==' => 'to_sym', '>' => 'gt', '<' => 'lt', '>=' => 'gte', '<=' => 'lte', '!=' => 'not'}[arg[:operator]]
+        m = m.all({key.to_sym.send(op) => arg[:value]})
+      elsif ['atk', 'hp', 'rcv'].include?(key)
+        op = {'=' => 'to_sym', '==' => 'to_sym', '>' => 'gt', '<' => 'lt', '>=' => 'gte', '<=' => 'lte', '!=' => 'not'}[arg[:operator]]
+        m = m.all({"#{key}_max".to_sym.send(op) => arg[:value]})
+      elsif key == 'leader'
+        if arg[:operator] == ".like."
+          m = m.all(:leader_text.like => arg[:value])
+        elsif arg[:operator] == ".include"
+          m = m.all(:leader_text.like => "%#{arg[:value]}%")
+        elsif arg[:operator] == "=" || arg[:operator] == "=="
+          m = m.all(:leader_text => arg[:value])
+        end
+      elsif key == 'active'
+        if arg[:operator] == ".like."
+          m = m.all(:skill_text.like => arg[:value])
+        elsif arg[:operator] == ".include"
+          m = m.all(:skill_text.like => "%#{arg[:value]}%")
+        elsif arg[:operator] == "=" || arg[:operator] == "=="
+          m = m.all(:skill_text => arg[:value])
+        end   
+      end
+    end
+    # handle in ruby, convert relation to array
+    argv.each do |arg|
+      key = arg[:key]
+      if key == 'type' || key == 'types'
+        if ['=', '==', '.include.'].include? arg[:operator]
+          m = m.select{|monster| monster.types.map(&:downcase).include?(arg[:value].downcase)}
+        end    
+      elsif key == 'awakenings' || key == 'awakening'
+        awakening = Awakening.find_by_name(arg[:value])
+        next if awakening.nil?
+        if ['=', '==', '.include.'].include? arg[:operator]
+          m = m.select{|monster| monster.awakenings.include?(awakening.id)}
+        end
+      elsif key == 'element' || key == 'elements'
+        if ['=', '==', '.include.'].include? arg[:operator]
+          m = m.select{|monster| monster.element.split("/").map(&:downcase).include?(arg[:value].downcase)}
+        end   
+      end
+    end
+
+    results = m
+    if results.count >= 10
+      message.reply "Query matched #{results.count} records; please refine."
+    else
+      message.reply "Matches: #{results.map{|r| list_monster(r)}.join(', ')}"
+    end
+  end
+
+  def list_monster(monster)
+    "##{monster.id} #{monster.name}"
+  end
+
   def execute_query(m, query)
     key = query.downcase
     lead = "#{m.name} #{key} =>"
@@ -75,6 +148,11 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
   end
 
   def respond(m, args)
+    if args.split.first.downcase == "where"
+      fake_sql(m, args)
+      return
+    end
+
     search_key = args.split(" ")[0..-2].join(" ")
     query = args.split(" ").last
     puzzlemon = Monster.fuzzy_search(search_key)
