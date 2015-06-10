@@ -95,7 +95,7 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
           m = m.select{|monster| monster.types.map(&:downcase).include?(arg[:value].downcase)}
         end    
       elsif key == 'awakenings' || key == 'awakening'
-        awakening = Awakening.find_by_name(arg[:value])
+        awakening = Awakening.find_by_name(arg[:value].tr('-_:', ' '))
         next if awakening.nil?
         if ['=', '==', '.include.'].include? arg[:operator]
           m = m.select{|monster| monster.awakenings.include?(awakening.id)}
