@@ -1,3 +1,9 @@
+require 'open-uri'
+require 'openssl'
+require 'json'
+
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE  
+
 class Gachapon
   GODFEST_PANTHEONS = ["O", "M", "S", "Z", "K", "U", "N"]
 
@@ -147,6 +153,17 @@ remember to use godfest tags! !pad tags for help"
     end
   end
 
+  def get_box(nick)
+    padherder_name = User.fuzzy_lookup(nick).padherder_name rescue nil
+    if padherder_name
+      j = JSON.parse(open("https://www.padherder.com/user-api/user/#{padherder_name}").read)
+      box = j["monsters"].map{|hash| hash["monster"]}.uniq
+      box
+    else
+      nil
+    end
+  end
+
   # Horrific. From old Asterbot. Refactor.
   def respond(m, args)
     argv = args ? args.split(" ") : []
@@ -192,13 +209,23 @@ remember to use godfest tags! !pad tags for help"
         m.reply("#{args.split(' ').last} doesn't seem like a number; remember to prepend godfest tags with a '+'")
         return
       end
+      dupes = 0
+      box = get_box(m.user.nick)
       args.to_i.times do
         monster = @gachapon_simulator.roll(godfest_flags)
         stars = monster.stars
         types = monster.types
         name = monster.name
         if monster.pantheon
-          gods << monster.name
+          if box
+            if box.include?(monster.id)
+              dupes += 1
+            else
+              gods << monster.name
+            end
+          else
+            gods << monster.name
+          end
         end
       end
       overflow = 0
@@ -215,6 +242,9 @@ remember to use godfest tags! !pad tags for help"
         if overflow > 0
           r += "...and #{overflow} more"
         end
+        if dupes > 0
+          r += ", plus #{dupes} dupes"
+        end
       end
       m.reply r
     elsif args.nil? || args.strip.length == 0
@@ -229,7 +259,13 @@ remember to use godfest tags! !pad tags for help"
       end
 
       if worthwhile?(monster)
-        msg =  (stars == 6 ? "Lucky bastard!" : "Lucky bastard.")
+        nick = m.user.nick
+        box_contents = get_box(nick) rescue nil
+        if box_contents.include?(monster.id)
+          msg = "Too bad you already have one."
+        else
+          msg = (stars == 6 ? "Lucky bastard!" : "Lucky bastard.")
+        end
       elsif stars == 5
         msg = "Meh."
       elsif golem
