@@ -116,10 +116,10 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
     terms.each do |term|
       if term.downcase == "evolved"
         m = m.select{|monster| monster.evolved.nil?}
-      elsif term.downcase == "herder"
+      elsif term.downcase == "padherder" || term.downcase == "herder"
         user_owned = get_box(message.user.nick)
         if user_owned.nil?
-          m.reply "Failed to establish padherder API link for #{message.user.nick}." and return
+          message.reply "Failed to establish padherder API link for #{message.user.nick}." and return
         end
         m = m.select{|monster| user_owned.include?(monster.id)}
       end
@@ -136,7 +136,7 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
   end
 
   def get_box(nick)
-    padherder_name = User.fuzzy_search(nick).padherder_name rescue nil
+    padherder_name = User.fuzzy_lookup(nick).padherder_name rescue nil
     if padherder_name
       j = JSON.parse(open("https://www.padherder.com/user-api/user/#{padherder_name}").read)
       box = j["monsters"].map{|hash| hash["monster"]}.uniq
