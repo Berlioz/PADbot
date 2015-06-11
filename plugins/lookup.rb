@@ -56,6 +56,7 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
   # types, element, awakenings are inclusion queries
   # special: rem, evolved
   def fake_sql(message, args)
+    args = args.tr(',&', ' ')
     terms = args.split[1..-1]
     argv = []
     terms.each do |term|
