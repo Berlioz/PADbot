@@ -164,6 +164,29 @@ remember to use godfest tags! !pad tags for help"
     end
   end
 
+  def in_box?(monster, box)
+    frontier = [monster.id]
+    chain = []
+    while frontier.length > 0
+      current = Monster.get(frontier.pop)
+      chain << current.id
+      if current.unevolved
+        frontier << current.unevolved unless chain.include?(current.unevolved)
+      end
+      if current.evolved
+        Array(current.evolved).each do |id|
+          frontier << id unless chain.include?(id)
+        end
+      end
+    end
+    chain = chain.uniq
+
+    chain.each do |id|
+      return true if box.include?(id)
+    end
+    return false
+  end
+
   # Horrific. From old Asterbot. Refactor.
   def respond(m, args)
     argv = args ? args.split(" ") : []
@@ -218,7 +241,7 @@ remember to use godfest tags! !pad tags for help"
         name = monster.name
         if monster.pantheon
           if box
-            if box.include?(monster.id)
+            if in_box?(monster, box)
               dupes += 1
             else
               gods << monster.name
@@ -260,8 +283,8 @@ remember to use godfest tags! !pad tags for help"
 
       if worthwhile?(monster)
         nick = m.user.nick
-        box_contents = get_box(nick) rescue nil
-        if box_contents.include?(monster.id)
+        box = get_box(nick) rescue nil
+        if in_box?(monster, box)
           msg = "Too bad you already have one."
         else
           msg = (stars == 6 ? "Lucky bastard!" : "Lucky bastard.")
