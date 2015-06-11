@@ -1,3 +1,9 @@
+require 'open-uri'
+require 'openssl'
+require 'json'
+
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE  
+
 class LookupPlugin < PazudoraPluginBase
   def self.aliases
     ["lookup", "dex", "info"]
@@ -107,12 +113,36 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
       end
     end
 
+    terms.each do |term|
+      if term.downcase == "evolved"
+        m = m.select{|monster| monster.evolved.nil?}
+      elsif term.downcase == "herder"
+        user_owned = get_box(message.user.nick)
+        if user_owned.nil?
+          m.reply "Failed to establish padherder API link for #{message.user.nick}." and return
+        end
+        m = m.select{|monster| user_owned.include?(monster.id)}
+      end
+    end
+
     results = m
  
     if message.channel && results.count >= 15
       message.reply "Query matched #{results.count} records; please refine or PM me out of channel."
     else
-      message.reply "Matches: #{results.map{|r| list_monster(r)}.join(', ')}"
+      lead = "Query"
+      message.reply "#{lead}: #{results.map{|r| list_monster(r)}.join('; ')}"
+    end
+  end
+
+  def get_box(nick)
+    padherder_name = User.fuzzy_search(nick).padherder_name rescue nil
+    if padherder_name
+      j = JSON.parse(open("https://www.padherder.com/user-api/user/#{padherder_name}").read)
+      box = j["monsters"].map{|hash| hash["monster"]}.uniq
+      box
+    else
+      nil
     end
   end
 
