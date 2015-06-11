@@ -108,8 +108,9 @@ Examples: !pad lookup horus awakenings, !pad lookup 200 ATK"
     end
 
     results = m
-    if results.count >= 10
-      message.reply "Query matched #{results.count} records; please refine."
+ 
+    if message.channel && results.count >= 15
+      message.reply "Query matched #{results.count} records; please refine or PM me out of channel."
     else
       message.reply "Matches: #{results.map{|r| list_monster(r)}.join(', ')}"
     end
