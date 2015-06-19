@@ -52,12 +52,12 @@ class WeeabooRemPlugin < PazudoraPluginBase
       
       [2014, 2015, 2017, 2020, 2021, 2022].each do |target|
         next unless rolls.include?(target)
-        m = Monster.get(target)
+        monster = Monster.get(target)
         dupes = rolls.grep(target).count
         if dupes > 1
-          rv << "#{dupes}x #{m.name}"
+          rv << "#{dupes}x #{monster.name}"
         else
-          rv << "#{m.name}"
+          rv << "#{monster.name}"
         end
       end
 
@@ -67,13 +67,13 @@ class WeeabooRemPlugin < PazudoraPluginBase
       end
 
       silvers = rolls.select{|id| [2023, 2024, 2025, 2026, 2027, 2028].include?(id)}.count
-      if golds > 0
-      	rv << "#{golds}x heroes"
+      if silvers > 0
+      	rv << "#{silvers}x silver eggs"
       end
       m.reply("#{count} pulls: #{rv.join(', ')}")
     else
       search_key = args  
-      if !reachable(search_key)
+      if !reachable?(search_key)
         m.reply("'#{search_key}' doesn't correspond to anything in the Academy REM")
       end
       attempts = 0
