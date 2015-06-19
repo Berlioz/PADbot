@@ -14,6 +14,17 @@ class WeeabooRemPlugin < PazudoraPluginBase
     false
   end
 
+  def stone_price(stones)
+    prices = {1 => 1, 6 => 5, 12 => 10, 30 => 23, 60 => 44, 85 => 60}
+    money = 0
+    while stones > 0
+      selection = prices.keys.select{|x| x <= stones}.max
+      stones = stones - selection
+      money = money + prices[selection]
+    end
+    money
+  end
+
   # 4* : 85%
   # 5* : 10%
   # 6* : 3.5%
@@ -41,7 +52,7 @@ class WeeabooRemPlugin < PazudoraPluginBase
       m.reply("You rolled ##{roll.id} #{roll.name} (#{roll.stars}*)")
     elsif args.to_i != 0
       rv = []
-      if args.to_i > 100
+      if args.to_i > 200
         m.reply ("dick.") and return
       end
       count = args.to_i
@@ -70,7 +81,9 @@ class WeeabooRemPlugin < PazudoraPluginBase
       if silvers > 0
       	rv << "#{silvers}x silver eggs"
       end
-      m.reply("#{count} pulls: #{rv.join(', ')}")
+      price = stone_price(count * 5)
+
+      m.reply("#{count} pulls ($#{price}): #{rv.join(', ')}")
     else
       search_key = args  
       if !reachable?(search_key)
@@ -83,7 +96,8 @@ class WeeabooRemPlugin < PazudoraPluginBase
         monster = pull
         break if monster.name.downcase.include?(search_key.downcase)
       end
-      m.reply "After #{attempts} attempts, you rolled ##{monster.id} #{monster.name}"
+      price = stone_price(attempts * 5)
+      m.reply "After #{attempts} attempts and $#{price}, you rolled ##{monster.id} #{monster.name}"
     end
   end
 end
