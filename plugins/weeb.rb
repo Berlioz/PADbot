@@ -81,9 +81,9 @@ class WeeabooRemPlugin < PazudoraPluginBase
       loop do
       	attempts += 1
         monster = pull
-        break if m.name.downcase.include?(search_key.downcase)
+        break if monster.name.downcase.include?(search_key.downcase)
       end
-      m.reply "After #{attempts} attempts, you rolled ##{m.id} #{m.name}"
+      m.reply "After #{attempts} attempts, you rolled ##{monster.id} #{monster.name}"
     end
   end
 end
