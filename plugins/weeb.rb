@@ -1,6 +1,6 @@
 class WeeabooRemPlugin < PazudoraPluginBase
   def self.aliases
-    ["academy", "weeb", "senpai"]
+    ["academy", "weeb", "senpai", "s-senpai", "baka", "b-baka"]
   end
 
   def self.helpstring
@@ -52,7 +52,7 @@ class WeeabooRemPlugin < PazudoraPluginBase
       m.reply("You rolled ##{roll.id} #{roll.name} (#{roll.stars}*)")
     elsif args.to_i != 0
       rv = []
-      if args.to_i > 200
+      if args.to_i > 500
         m.reply ("dick.") and return
       end
       count = args.to_i
