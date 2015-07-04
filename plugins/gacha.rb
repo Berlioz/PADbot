@@ -23,7 +23,7 @@ class Gachapon
       @reachable_names << m.name.downcase
     end
 
-    Monster.all.select{|m| m.rem && m.stars == 5}.each do |m|
+    Monster.all.select{|m| m.rem && m.stars >= 5 && !m.pantheon}.each do |m|
       @gold_eggs << m.id
       @reachable_names << m.name.downcase
     end

@@ -2,8 +2,8 @@ require 'distribution'
 
 class SkillupPlugin < PazudoraPluginBase
   def self.helpstring
-"!pad skillup K N p: Computes the probability of getting K or more skillups in N feeds, with skillup probability p (default = 0.2)
-!pad skkillup K/c, Computes how many feeds you'd need to get K skillups with confidence c, !pad skillup 5/0.5"
+"!pad skillup K N p: Computes the probability of getting K or more skillups in N feeds, with skillup probability p (default = 0.25)
+!pad skkillup K/c, Computes how many feeds you'd need to get K skillups with confidence c, !pad skillup 5/0.5, under 2.5x"
   end
 
   def self.aliases
@@ -33,7 +33,7 @@ class SkillupPlugin < PazudoraPluginBase
 
     begin
       (k..250).each do |i|
-        failure_chance = Distribution::Binomial::cdf(k-1, i, 0.2)
+        failure_chance = Distribution::Binomial::cdf(k-1, i, 0.25)
         success_chance = 1.0 - failure_chance
         if success_chance > c
           m.reply("Gathering #{i} skill-up fodder will give you a #{success_chance.round(3)} chance of #{k} skill-ups.")
@@ -56,7 +56,7 @@ class SkillupPlugin < PazudoraPluginBase
     elsif argv.length == 2
       k = argv[0].to_i
       n = argv[1].to_i
-      p = 0.2
+      p = 0.25
     else
       reply_on_bad_syntax(m) and return
     end
@@ -66,9 +66,10 @@ class SkillupPlugin < PazudoraPluginBase
     end
 
     begin
+      noun = m.params.last.include?("bino") ? "trials" : "feeds"
       screwed = Distribution::Binomial::cdf(k-1, n, p)
       ok = (1.0 - screwed).round(3)
-      m.reply("On #{n} feeds (p=#{p}), your odds of getting #{k} or more successes is #{ok}.")
+      m.reply("On #{n} #{noun} (p=#{p}), your odds of getting #{k} or more successes is #{ok}.")
     rescue ArgumentError => e
       m.reply("Bad query: #{e.message}") 
     end 
