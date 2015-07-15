@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # gold eggs: 1967, 1972, 1970 4% ea.
 # silver eggs: 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981 11% ea.
 
@@ -80,8 +82,11 @@ class ShinraBanshoRemPlugin < PazudoraPluginBase
       m.reply("#{count} pulls ($#{price}): #{rv.join(', ')}")
     else
       search_key = args  
+      if search_key.downcase.include?("kiriko")
+        search_key = "炎鎚のキリコ"
+      end
       if !reachable?(search_key)
-        m.reply("'#{search_key}' doesn't correspond to anything in the Academy REM")
+        m.reply("'#{search_key}' doesn't correspond to anything in the Shinra Bansho REM")
       end
       attempts = 0
       monster = nil

@@ -17,7 +17,6 @@ Yes, this could be a bit awkward if you're looking for a monster whose name begi
 
   def initialize
     @names = Monster.all.map{|m| [m.name, m.id]}
-    p @names
   end
 
   def parse_args(args)

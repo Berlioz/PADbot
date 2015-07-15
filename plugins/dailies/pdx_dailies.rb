@@ -73,7 +73,9 @@ class WikiaDailies
     return rewards.length > 0 ? rewards.join(', ') : ""
   end
 
-  def get_dailies(timezone = -8)
+  def get_dailies(timezone = -7)
+    offset = timezone + 7
+
     table = @wikia.xpath("//table").first
     today_header = table.xpath("//th").select{|th| th.children.first.to_s.include?(today)}.first
     rows_to_read = today_header.attributes["rowspan"].value.to_i
@@ -86,6 +88,7 @@ class WikiaDailies
         (0..4).each do |i|
           time = row.to_s.scan(/\d\d:\d\d/)[i]
           display_value = time.split(":").first
+          display_value = (display_value.to_i + offset).to_s
           display_value += ":30" if time.split(":").last.include?("30")
           collector[i] << display_value
         end

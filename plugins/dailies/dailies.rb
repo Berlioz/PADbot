@@ -13,6 +13,23 @@ class DailiesPlugin < PazudoraPluginBase
     ['dailies', 'urgents']
   end
 
+  # FUCK TZINFO
+  def get_timezone(arg)
+    if arg.to_i != 0
+      arg.to_i
+    elsif arg.downcase == "pacific" || arg.downcase == "pst"
+      -7
+    elsif arg.downcase == "central" || arg.downcase == "cst"
+      -6
+    elsif arg.downcase == "eastern" || arg.downcase == "est"
+      -5
+    elsif arg.downcase == "japan" || arg.downcase == "jst"
+      9
+    else
+      raise "#{arg} is not a recognizable timezone"
+    end
+  end
+
   def respond(m, args)
     args = "" unless args
     argv = args.split
@@ -20,12 +37,22 @@ class DailiesPlugin < PazudoraPluginBase
     timezone = -7
     if argv.length == 2
       group = argv.first.upcase
-      timezone = argv.last.to_i
+      begin
+        timezone = get_timezone(argv.last)
+      rescue Exception => e
+        m.reply e.message
+        return
+      end
     elsif argv.length == 1 && ["A", "B", "C", "D", "E"].include?(argv.first.upcase)
       group = argv.first.upcase
     elsif argv.length == 1
-      timezone = argv.first.to_i
-    end
+      begin
+        timezone = get_timezone(argv.first)
+      rescue Exception => e
+        m.reply e.message
+        return
+      end
+    end 
 
     group ? group_schedule(m, group, timezone) : full_schedule(m, timezone)
   end
@@ -36,13 +63,12 @@ class DailiesPlugin < PazudoraPluginBase
     groups = w.get_dailies(timezone)
     rv = groups.each_with_index.map {|times, i| "#{(i + 65).chr}: #{times.join(' ')}"}
     rv = rv.join(" | ")
-    m.reply "#{w.today} Urgents: #{reward}"
+    m.reply "#{w.today} (UTC #{timezone}) Urgents: #{reward}"
     m.reply rv
     specials = w.specials
     if specials.count > 0
       m.reply "Special dungeon(s): #{specials.join(', ')}"
     end
-    m.reply "warning: timezones not currently supported. times are pacific -0700"
   end
 
   def group_schedule(m, group, timezone)
@@ -50,7 +76,7 @@ class DailiesPlugin < PazudoraPluginBase
     reward = w.dungeon_reward.split(", ") #lmao
     index = {"A" => 0, "B" => 1, "C" => 2, "D" => 3, "E" => 4}[group]
     groups = w.get_dailies(timezone)[index]
-    rv = ["#{w.today} Urgents (#{group}): "]
+    rv = ["#{w.today} (UTC #{timezone}) Urgents (#{group}): "]
     reward.length.times do |n|
       rv << "#{reward[n]} @ #{groups[n]}"
     end

@@ -143,6 +143,17 @@ remember to use godfest tags! !pad tags for help"
     money
   end
 
+  def rolls_for_money(dollars)
+    yields = {1 => 1, 5 => 6, 10 => 12, 23 => 30, 44 => 60, 60 => 85}
+    stones = 0
+    while dollars > 0
+      selection = yields.keys.select{|x| x <= dollars}.max
+      dollars -= selection
+      stones += yields[selection]
+    end
+    stones / 5
+  end
+
   # determine whether or not asterbot should complement you on rolling something
   def worthwhile?(monster)
     # sonias, colored valks
@@ -222,7 +233,10 @@ remember to use godfest tags! !pad tags for help"
       r += "Known tags: [R]oman, [J/J2]apanese, [I/I2]ndian, [N]orse, [E/E2]gyptian, [G]reek, [A/A2]ngels, [D]evils, [C]hinese, [3] Kingdoms, [H]eroes\n"
       r += "[O]dins, [M]etatrons, [S]onias, G[U]an Yus, [Z]huges, [K]alis, [M]oirae, [@]ll Godfest-Only"
       m.reply r
-    elsif args.to_i != 0
+    elsif args.to_i != 0 || (args && args[0] == "$" && args[1..-1].to_i != 0)
+      if args[0] == "$"
+        args = rolls_for_money(args[1..-1].to_i).to_s
+      end
       gods = []
       if args.to_i > 100
         m.reply "Not doing >100 rolls at once; apparently you jackasses can't have nice things."
@@ -308,7 +322,7 @@ remember to use godfest tags! !pad tags for help"
       elsif Monster::NAME_SPECIAL_CASES.keys.include?(identifier)
         target = Monster.fuzzy_search(identifier)
         identifier = target.name.downcase
-      elsif identifier[0] == '#' && identifier[1..-1].to_i != 0
+      elsif identifier[0] == "#" && identifier[1..-1].to_i != 0
         target = Monster.get(identifier[1..-1].to_i)
         identifier = target.name.downcase
       elsif identifier[0] == '"' && identifier[-1] == '"'
