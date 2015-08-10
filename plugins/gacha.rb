@@ -5,7 +5,7 @@ require 'json'
 OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE  
 
 class Gachapon
-  GODFEST_PANTHEONS = ["O", "M", "S", "Z", "K", "U", "N"]
+  GODFEST_PANTHEONS = ["O", "M", "S", "Z", "K", "U", "N", "@"]
 
   def initialize
     @leaf_eggs = []
@@ -298,7 +298,7 @@ remember to use godfest tags! !pad tags for help"
       if worthwhile?(monster)
         nick = m.user.nick
         box = get_box(nick) rescue nil
-        if in_box?(monster, box)
+        if box && in_box?(monster, box)
           msg = "Too bad you already have one."
         else
           msg = (stars == 6 ? "Lucky bastard!" : "Lucky bastard.")
