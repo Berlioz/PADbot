@@ -26,7 +26,7 @@ class Gachapon
         end
       end
 
-      if m.pantheon && m.pantheon != "@"
+      if m.pantheon && m.pantheon != "@" && m.stars == 5
         if @pantheons[m.pantheon].nil?
           @pantheons[m.pantheon] = [m.id]
         else
@@ -42,59 +42,65 @@ class Gachapon
         end
       end
 
-      @reachable_names << m.name if (m.pantheon || m.rem) 
+      @reachable_names << m.name.downcase if (m.pantheon || m.rem) 
     end
 
-    debug_print if false
+    debug_print
   end 
 
   def debug_print
     print "SILVERS\n"
     @silvers.each do |id|
-      print "##{id} #{Monster.get(id).name}"
+      print "##{id} #{Monster.get(id).name}\n"
     end
 
     print "TROLL GOLDS\n"
     @troll_golds.each do |id|
-      print "##{id} #{Monster.get(id).name}"
+      print "##{id} #{Monster.get(id).name}\n"
     end
 
     print "PANTHEONS\n"
     @pantheons.each do |k,v|
       v.each do |id|
-        print "(#{k}) ##{id} #{Monster.get(id).name}"
+        print "(#{k}) ##{id} #{Monster.get(id).name}\n"
       end
     end
 
     print "GODFEST EXCLUSIVES\n"
     @gfes.each do |id|
-      print "##{id} #{Monster.get(id).name}"
+      print "##{id} #{Monster.get(id).name}\n"
     end
 
     print "6* GODFEST EXCLUSIVES\n"
     @super_gfes.each do |id|
-      print "##{id} #{Monster.get(id).name}"
+      print "##{id} #{Monster.get(id).name}\n"
     end
+
+    print @reachable_names
   end
 
   def reachable?(name)
     @reachable_names.detect{|n| n.include?(name.downcase)}
   end
 
+  def pantheons
+    @pantheons.keys
+  end
+
   #  p(silver) = 0.3, p(troll gold) = 0.35, p(off-godfest) = 0.05,
   #  p(godfest) = 0.22, p(gfe) = 0.06, p (6* gfe) = 0.02
   def roll(godfest_tags)
     test = rand(1000)
-    if rand < 300
+    if test < 300
       @silvers.sample
-    elsif rand < 650
+    elsif test < 650
       @troll_golds.sample
-    elsif rand < 700
+    elsif test < 700
       @gods.sample
-    elsif rand < 920
+    elsif test < 920
       pantheon = godfest_tags.sample
       @pantheons[pantheon] ? @pantheons[pantheon].sample : @gods.sample
-    elsif rand < 980
+    elsif test < 980
       @gfes.sample
     else
       @super_gfes.sample
@@ -203,6 +209,8 @@ remember to use godfest tags! !pad tags for help"
       godfest_flags = []
     end
 
+    p "debug: #{m} with tags #{godfest_flags}"
+
     if args.to_i != 0 || (args && args[0] == "$" && args[1..-1].to_i != 0)
       m.reply "#{m.user.nick}: #{multi_rolls(args, godfest_flags, m.user.nick)}"
     elsif args.nil? || args.strip.length == 0
@@ -228,14 +236,12 @@ remember to use godfest tags! !pad tags for help"
     elsif identifier[0] == '"' && identifier[-1] == '"'
       exact_match = true
       identifier = identifier[1..-2]
-      m.reply("-.-") and return if identifier.length == 0
+      return "-.-" if identifier.length == 0
     end
     unless regex || exact_match
-      return "#{args.strip.downcase} doesn't correspond to any known REM monster") unless @gachapon_simulator.reachable?(identifier)
+      return "#{args.strip.downcase} doesn't correspond to any known REM monster" unless @gachapon_simulator.reachable?(identifier)
     end
-    unless regex || exact_match
-      return "#{args.strip.downcase} doesn't correspond to any known REM monster") unless @gachapon_simulator.reachable?(identifier)
-    end
+
     attempts = 0
     monster = nil
     loop do
@@ -244,7 +250,7 @@ remember to use godfest tags! !pad tags for help"
       break if !regex && !exact_match && (monster.name.downcase.include?(identifier))
       break if regex && (monster.name.downcase.match(identifier) || monster.name.match(identifier))
       break if !regex && monster.name.downcase == identifier.downcase
-      return ">1000 rolls for #{identifier}" and return if attempts == 1000
+      return ">1000 rolls for #{identifier}" if attempts == 1000
     end
     price = stone_price(attempts * 5)
     "After #{attempts} attempts, you rolled a #{monster.name}. (There goes $#{price})"
