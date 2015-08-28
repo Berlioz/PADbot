@@ -1,3 +1,4 @@
+=begin
 require 'open-uri'
 require 'openssl'
 require 'json'
@@ -351,3 +352,4 @@ remember to use godfest tags! !pad tags for help"
     end
   end
 end
+=end
