@@ -45,7 +45,7 @@ class Gachapon
       @reachable_names << m.name.downcase if (m.pantheon || m.rem) 
     end
 
-    debug_print
+    #debug_print
   end 
 
   def debug_print
@@ -150,6 +150,8 @@ remember to use godfest tags! !pad tags for help"
   def worthwhile?(monster)
     # sonias, colored valks
     if [911, 913, 1088, 972, 982, 1270, 1516].include?(monster.id)
+      true
+    elsif monster.pantheon
       true
     else
       monster.stars >= 5 && monster.types.include?("God") && !monster.name.include?("Verche")

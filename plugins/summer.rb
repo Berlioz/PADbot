@@ -1,6 +1,6 @@
 class SummerRemPlugin < PazudoraPluginBase
   def self.aliases
-    ["summer", "beach", "whalesong"]
+    ["summer", "beach", "island", "whalesong"]
   end
 
   def self.helpstring
