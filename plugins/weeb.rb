@@ -49,6 +49,7 @@ class WeeabooRemPlugin < PazudoraPluginBase
   def respond(m, args)
     if args.nil?
       roll = pull
+      log_spending(5)
       m.reply("You rolled ##{roll.id} #{roll.name} (#{roll.stars}*)")
     elsif args.to_i != 0
       rv = []
@@ -82,6 +83,7 @@ class WeeabooRemPlugin < PazudoraPluginBase
       	rv << "#{silvers}x silver eggs"
       end
       price = stone_price(count * 5)
+      log_spending(price)
 
       m.reply("#{count} pulls ($#{price}): #{rv.join(', ')}")
     else
@@ -97,6 +99,7 @@ class WeeabooRemPlugin < PazudoraPluginBase
         break if monster.name.downcase.include?(search_key.downcase)
       end
       price = stone_price(attempts * 5)
+      log_spending(price)
       m.reply "After #{attempts} attempts and $#{price}, you rolled ##{monster.id} #{monster.name}"
     end
   end

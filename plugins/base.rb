@@ -1,5 +1,6 @@
 require 'cinch'
 require 'singleton'
+require 'time'
 
 class PazudoraPluginBase
   include Singleton
@@ -50,5 +51,13 @@ class PazudoraPluginBase
 
   def reply_on_bad_syntax(m)
     m.reply "Unknown syntax. Try !pad help #{self.class.aliases.first}."
+  end
+
+  private
+
+  def log_spending(amount)
+    logfile = File.open("stones.txt", "w")
+    logfile.puts "#{Time.now.utc.iso8601} #{amount}"
+    logfile.close
   end
 end

@@ -255,6 +255,7 @@ remember to use godfest tags! !pad tags for help"
       return ">1000 rolls for #{identifier}" if attempts == 1000
     end
     price = stone_price(attempts * 5)
+    log_spending(price)
     "After #{attempts} attempts, you rolled a #{monster.name}. (There goes $#{price})"
   end
 
@@ -277,6 +278,7 @@ remember to use godfest tags! !pad tags for help"
     else
       msg = "I just saved you $5."
     end
+    log_spending(5)
     "You got #{name}, a #{stars}* #{types.first}. #{msg}"
   end
 
@@ -328,6 +330,7 @@ remember to use godfest tags! !pad tags for help"
         r += ", plus #{dupes} dupes"
       end
     end
+    log_spending(price)
     return r
   end
 
