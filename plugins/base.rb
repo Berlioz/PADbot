@@ -56,7 +56,7 @@ class PazudoraPluginBase
   private
 
   def log_spending(amount)
-    logfile = File.open("stones.txt", "w")
+    logfile = File.open("stones.txt", "a")
     logfile.puts "#{Time.now.utc.iso8601} #{amount}"
     logfile.close
   end
