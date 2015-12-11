@@ -8,7 +8,7 @@ class BatremPlugin < PazudoraPluginBase
   end
 
   def reachable?(key)
-    [671, 673, 675, 677, 679].each do |id|
+    [2135, 671, 673, 675, 677, 679].each do |id|
       return true if Monster.get(id).name.downcase.include?(key.downcase)
     end
     false
@@ -34,7 +34,7 @@ class BatremPlugin < PazudoraPluginBase
     if test <= 100
       [675, 679].sample
     else
-      [671, 673, 677].sample
+      [671, 673, 677, 2135].sample
     end
   end
 
@@ -58,7 +58,7 @@ class BatremPlugin < PazudoraPluginBase
         rolls << roll_id
       end
       
-      [671, 673, 675, 677, 679].each do |target|
+      [2135, 671, 673, 675, 677, 679].each do |target|
         next unless rolls.include?(target)
         monster = Monster.get(target)
         dupes = rolls.grep(target).count

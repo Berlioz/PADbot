@@ -88,7 +88,7 @@ class HalloweenPlugin < PazudoraPluginBase
       end
 
       price = stone_price(count * 5)
-      m.reply("#{count} pulls ($#{price}): #{rv.join(', ')}")
+      m.reply("#{count} pulls ($#{price}): #{rv.join('; ')}")
     else
       search_key = args  
       if !reachable?(search_key)

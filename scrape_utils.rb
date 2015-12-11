@@ -237,6 +237,7 @@ class PadherderAPI
   def parse_id(id)
     m = @monsters.detect{|json| json["id"] == id.to_i || json["pdx_id"] == id.to_i}
     m["xp_curve"] = 5000000 if m["xp_curve"] == 6000000
+    m["xp_curve"] = 5000000 if m["xp_curve"] == 9900000
     monster_data(m)
   end
 
@@ -255,6 +256,7 @@ class PadherderAPI
     @monsters.each do |json_slug|
       begin
         json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 6000000
+        json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 9999999
         m = monster_data(json_slug)
       rescue Exception => e
         binding.pry
