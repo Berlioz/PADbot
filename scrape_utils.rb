@@ -264,7 +264,7 @@ class PadherderAPI
       end
       next if m[:id] < start
       if Monster.get(m[:id])
-        p "Updating ##{m[:id]} #{m[:name]}"
+        #p "Updating ##{m[:id]} #{m[:name]}"
         Monster.get(m[:id]).update!(m) rescue binding.pry
       else
         p "Creating ##{m[:id]} #{m[:name]}"
