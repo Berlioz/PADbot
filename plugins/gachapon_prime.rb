@@ -252,7 +252,7 @@ remember to use godfest tags! !pad tags for help"
       break if !regex && !exact_match && (monster.name.downcase.include?(identifier))
       break if regex && (monster.name.downcase.match(identifier) || monster.name.match(identifier))
       break if !regex && monster.name.downcase == identifier.downcase
-      return ">1000 rolls for #{identifier}" if attempts == 1000
+      return ">2000 rolls for #{identifier}" if attempts == 2000
     end
     price = stone_price(attempts * 5)
     log_spending(price)
@@ -287,8 +287,8 @@ remember to use godfest tags! !pad tags for help"
       args = rolls_for_money(args[1..-1].to_i).to_s
     end
     gods = []
-    if args.to_i > 100
-      return "Error: too many rolls (>100) requested."
+    if args.to_i > 200
+      return "Error: too many rolls (>200) requested."
     end
     if args.split(" ").length > 1
       return "#{args.split(' ').last} doesn't seem like a number; remember to prepend godfest tags with a '+'"

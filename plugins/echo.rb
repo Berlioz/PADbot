@@ -8,7 +8,7 @@ class EchoPlugin < PazudoraPluginBase
   end
 
   def respond(m, args)
-    challenge = File.open("admin", "r").read
+    challenge = File.open("admin", "r").read.strip
     p challenge
     channel, password, message = args.split(' ', 3)
     return if password != challenge

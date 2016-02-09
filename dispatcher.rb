@@ -1,3 +1,5 @@
+require 'time'
+
 class Dispatcher
   include Cinch::Plugin
 
@@ -48,8 +50,13 @@ class Dispatcher
   def execute(m, cmd, args)
     plugin = select_plugin(cmd.downcase.chomp)
     return if plugin.nil?
+    request_id = rand(4294967295)
+    log = File.open("asterbot.log", "a")
+    log.write("#{request_id} #{Time.now.iso8601} ##{m.channel} #{cmd}: #{args}\n")
     plugin.set_dispatcher(self)
     plugin.instance.respond(m, args)
+    log.write("#{request_id} TERM\n")
+    log.close
   end
 
   def exec_helper(method, *args)
