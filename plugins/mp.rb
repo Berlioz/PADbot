@@ -35,17 +35,25 @@ class MonsterPointPlugin < PazudoraPluginBase
   }
 
   def get_box(nick)
-    padherder_name = User.fuzzy_lookup(nick).padherder_name rescue nil
-    if padherder_name
-      j = JSON.parse(open("https://www.padherder.com/user-api/user/#{padherder_name}").read)
-      j["monsters"].map{|hash| hash["monster"]}
-    else
-      nil
-    end
+    padherder_name = User.fuzzy_lookup(nick).padherder_name rescue nick
+    padherder_name = nick unless padherder_name
+    j = JSON.parse(open("https://www.padherder.com/user-api/user/#{padherder_name}").read)
+    return nil if j["detail"] == "Not found"
+    j["monsters"].map{|hash| hash["monster"]}
   end
 
   def respond(m, args)
-    box = get_box(m.user)
+    if args && args.length > 0
+      username = args
+    else
+      username = m.user
+    end
+
+    box = get_box(username)
+    unless box
+      m.reply "Cannot find a padherder account which matches #{username}"
+      return
+    end
     shamedragon_value = 0
     monster_points = 0
 
@@ -58,8 +66,8 @@ class MonsterPointPlugin < PazudoraPluginBase
       end
     end
 
-    rv = "#{nick}'s box is worth #{monster_points} MP (that's #{(monster_points/300000.0).to_f} shamedragons!)."
-    rv += " That's in addition to the #{shamedragon_value} MP in shamedragons they already own..." if shamedragon_value > 0
+    rv = "#{username}'s box is worth #{monster_points} MP (that's #{(monster_points/300000.0).round(2)} shamedragons!)."
+    rv += " That's in addition to the #{shamedragon_value} MP in shop cards they already own..." if shamedragon_value > 0
     m.reply(rv)
   end
 end

@@ -4,12 +4,9 @@ class RegisterPlugin < PazudoraPluginBase
   end
 
   def self.helpstring
-"!pad register USERNAME FC PADHERDER-USERNAME: Tells asterbot to associate USERNAME with the provided FC (!pad register asterbot 123456789 asterbot)
-Note that the PADHERDER-USERNAME is optional if you don't have a padherder account (but why wouldn't you?)
-!pad register FC: Tells asterbot to associate your current IRC handle with the provided FC.
-!pad register alias USERNAME: Tells asterbot that your current IRC handle belongs to the already registered USERNAME
-Yes, this means if your username is alias you're SOL. Whoops.
-!pad register padherder PADHERDER-USERNAME: Tells asterbot to register your padherder username so we can easily get a link."
+"!pad register USERNAME FC [PADHERDER-USERNAME?]: creates an account (!pad register asterbot 123456789 asterbot)
+!pad register alias USERNAME: registers your current IRC handle to the already registered USERNAME
+!pad register padherder PADHERDER-USERNAME: registers your padherder username to an existing account."
   end
 
   def respond(m,args)

@@ -65,7 +65,12 @@ class PadherderAPI
        "Enhanced Light Att."=>27,
        "Enhanced Dark Att."=>28,
        "Two-Pronged Attack"=>29,
-       "Resistance-Skill Lock"=>30
+       "Resistance-Skill Lock"=>30,
+       "Multi Boost"=>31,
+       "Dragon Killer"=>32,
+       "God Killer"=>33,
+       "Devil Killer"=>34,
+       "Machine Killer"=>35
     }
     @types = {
       0 => 'Evo Material', 
@@ -75,7 +80,8 @@ class PadherderAPI
       4 => 'Dragon', 
       5 => 'God', 
       6 => 'Attacker', 
-      7 => 'Devil', 
+      7 => 'Devil',
+      8 => 'Machine', 
       12 => 'Awoken Skill Material', 
       13 => 'Protected', 
       14 => 'Enhance Material'
@@ -189,6 +195,7 @@ class PadherderAPI
     bst_max = hp_max + atk_max + rcv_max
     curve = json_slug["xp_curve"].to_s
     max_xp = max_xp(curve, max_level)
+    monster_points = json_slug["monster_points"]
 
     evolved = find_evolutions(internal_id)
     unevolved = @predecessors[internal_id]
@@ -227,6 +234,7 @@ class PadherderAPI
       :rcv_max => rcv_max,
       :bst_min => bst_min,
       :bst_max => bst_max,
+      :monster_points => monster_points,
       :evolved => evolved,
       :unevolved => unevolved,
       :materials => materials,
@@ -238,6 +246,7 @@ class PadherderAPI
     m = @monsters.detect{|json| json["id"] == id.to_i || json["pdx_id"] == id.to_i}
     m["xp_curve"] = 5000000 if m["xp_curve"] == 6000000
     m["xp_curve"] = 5000000 if m["xp_curve"] == 9900000
+    m["xp_curve"] = 5000000 if m["xp_curve"] == 16000000
     monster_data(m)
   end
 
@@ -257,6 +266,7 @@ class PadherderAPI
       begin
         json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 6000000
         json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 9999999
+        json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 16000000
         m = monster_data(json_slug)
       rescue Exception => e
         binding.pry
