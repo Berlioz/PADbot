@@ -7,6 +7,7 @@ class Monster
   property :name, String
   property :max_level, Integer
   property :max_xp, Integer
+  property :monster_points, Integer
   property :skill_text, Text
   property :leader_text, Text
   property :awakenings, Object
@@ -98,8 +99,16 @@ class Monster
     "red valk" => "1270",
     "red valkyrie" => "1270",
     "fire valk" => "1270",
-    "fire valkyrie" => "1270"
+    "fire valkyrie" => "1270",
+    "lkali" => "1585",
+    "light kali" => "1585",
+    "dkali" => "1587",
+    "dark kali" => "1587"
   }
+
+  def self.fuzzy_match(identifier)
+    self.fuzzy_search(identifier)
+  end
 
   def self.fuzzy_search(identifier)
     prefix, identifier_t = prefix_split(identifier)
