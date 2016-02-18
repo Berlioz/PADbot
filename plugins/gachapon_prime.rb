@@ -220,6 +220,9 @@ remember to use godfest tags! !pad tags for help"
     else
       m.reply "#{m.user.nick}: #{roll_for(args, godfest_flags, m.user.nick)}"
     end
+    if godfest_flags == []
+      m.reply "Silly #{m.user.nick}, you rolled without godfest tags. What'd you expect?"
+    end
   end
 
   def roll_for(args, godfest_flags, nick)
