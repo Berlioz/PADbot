@@ -63,6 +63,11 @@ A(nother) Puzzle and Dragons IRC bot.
 <Asterism> !pad group asterism
 <asterbot> asterism's group is C
 ```
+* !pad mp [username]: calculates the MP value of a user's box (or your own with no argument given)
+```
+<Asterism> !pad mp asterism
+<asterbot> asterism's box is worth 357325 MP (that's 1.19 shamedragons!).
+```
 
 #### Lookup
 * !pad which [search_key]: prints the list of all monsters with names that contain search_key.
@@ -109,6 +114,11 @@ A(nother) Puzzle and Dragons IRC bot.
 ```
 <Asterism> !pad stamina 22 100 -8
 <asterbot> You will gain 78 stamina (22-100) in ~780 minutes, or around 12:10PM UTC-08:00
+```
+* !pad skill [monster]: searches for other monsters with the same named active skill; displays only least-evolved forms
+```
+<Asterism> !pad skill red valkyrie
+<asterbot> Matches for Attack Stance - Fire: #37 Big Flamie; #57 Samurai Goblin; #106 Titan; #1282 武田ムラクモ; #2019 School Gang Leader, Gigas
 ```
 
 #### Calculators
@@ -180,15 +190,10 @@ A(nother) Puzzle and Dragons IRC bot.
 <Asterism> !pad roll hanzo
 <asterbot> After 295 attempts, you rolled a Hattori Hanzo. (There goes $1043)
 ```
-* !pad kitty: simulates a single pull from the Sanrio collab REM.
+* !pad [collab]: simulates a single pull from a collab REM machine (known collabs: academy, bansho, batrem, halloween, kitty, newyears, summer). You may also provide an integer or monster name, similar to !gacha.
 ```
 <Asterism> !pad kitty
 <asterbot> You got #1158 Kuromi.
-```
-* !pad batrem: simulates a single pull from the Batman Arkham Origins collab REM.
-```
-<Asterism> !pad batrem
-<asterbot> You got #673 BAO Robin, the 4* G Balance. Womp womp.
 ```
 
 ### On Monster lookup
