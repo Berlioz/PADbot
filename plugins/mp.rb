@@ -61,13 +61,17 @@ class MonsterPointPlugin < PazudoraPluginBase
       if MP_SHOP[id]
         shamedragon_value += MP_SHOP[id]
       else
+        if Monster.get(id).nil?
+          print "Bad monster ID #{id} queried by mp plugin\n"
+          next
+        end
         value = Monster.get(id).monster_points
         monster_points += value if value
       end
     end
 
     rv = "#{username}'s box is worth #{monster_points} MP (that's #{(monster_points/300000.0).round(2)} shamedragons!)."
-    rv += " That's in addition to the #{shamedragon_value} MP in shop cards they already own..." if shamedragon_value > 0
+    rv += " Plus, the #{shamedragon_value/1000}k MP in shop cards they already own..." if shamedragon_value > 0
     m.reply(rv)
   end
 end
