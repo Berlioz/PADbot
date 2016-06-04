@@ -19,10 +19,12 @@ class DailiesPlugin < PazudoraPluginBase
       arg.to_i
     elsif arg.downcase == "pacific" || arg.downcase == "pst"
       -7
-    elsif arg.downcase == "central" || arg.downcase == "cst"
+    elsif arg.downcase == "mountain" || arg.downcase == "mst"
       -6
-    elsif arg.downcase == "eastern" || arg.downcase == "est"
+    elsif arg.downcase == "central" || arg.downcase == "cst"
       -5
+    elsif arg.downcase == "eastern" || arg.downcase == "est"
+      -4
     elsif arg.downcase == "japan" || arg.downcase == "jst"
       9
     else

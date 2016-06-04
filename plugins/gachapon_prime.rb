@@ -87,9 +87,27 @@ class Gachapon
     @pantheons.keys
   end
 
+  def gfes
+    {
+      "odin" => [362, 364, 1107],
+      "caller" => [2141, 2143, 2145, 2147, 2149],
+      "metatron" => [640, 642],
+      "sonia" => [911, 913, 1088],
+      "norn" => [1669, 1671, 1673],
+      "kali" => [1587, 1585],
+      "dragonbound" => [1946, 1948, 2440, 2442, 2508],
+      "beast" => [1950, 1952],
+      "star" => [2562, 2564, 2591]
+    }
+  end
+
   #  p(silver) = 0.3, p(troll gold) = 0.35, p(off-godfest) = 0.05,
   #  p(godfest) = 0.22, p(gfe) = 0.06, p (6* gfe) = 0.02
   def roll(godfest_tags)
+    boosted_gfe = godfest_tags.include?("4")
+    unboosted_gfes = godfest_tags.select{|tag| tag[0] == "-"}.map{|tag| tag[1..-1]}
+    godfest_tags = godfest_tags.delete_if{|tag| ["4", "X", "@"].include?(tag) || tag[0] == "-"}
+
     test = rand(1000)
     if test < 300
       @silvers.sample
@@ -97,15 +115,46 @@ class Gachapon
       @troll_golds.sample
     elsif test < 700
       @gods.sample
-    elsif test < 920
+    elsif test < (boosted_gfe ? 900 : 920)
       pantheon = godfest_tags.sample
       @pantheons[pantheon] ? @pantheons[pantheon].sample : @gods.sample
-    elsif test < 980
-      @gfes.sample
+    elsif test < (boosted_gfe ? 975 : 980)
+      roll_gfe(unboosted_gfes)
     else
-      @super_gfes.sample
+      roll_super(unboosted_gfes)
     end
   end
+
+  def roll_gfe(unboosted)
+    pool = []
+    gfes.keys.each do |k|
+      if unboosted.include?(k)
+        pool += gfes[k].select{|id| @gfes.include?(id)}
+      else
+        4.times do
+          pool += gfes[k].select{|id| @gfes.include?(id)}
+        end
+      end
+    end
+    p pool
+    pool.sample
+  end
+
+  def roll_super(unboosted)
+    pool = []
+    gfes.keys.each do |k|
+      if unboosted.include?(k)
+        pool += gfes[k].select{|id| @super_gfes.include?(id)}
+      else
+        4.times do
+          pool += gfes[k].select{|id| @super_gfes.include?(id)}
+        end
+      end
+    end
+    p pool
+    pool.sample
+  end
+
 end
 
 class GachaPlugin < PazudoraPluginBase
@@ -199,7 +248,8 @@ remember to use godfest tags! !pad tags for help"
 
       godfest_flags = argv.last[1..-1].upcase.split(',').uniq
       godfest_flags.each do |flag|
-        next if flag == "@"
+        next if ["@". "4", "X"].include?(flag)
+        next if @gachapon_simulator.gfes.keys.map{|k| "-#{k}"}.include?(flag)
 
         unless @gachapon_simulator.pantheons.include?(flag)
           r = "Fatal: unknown godfest tag #{flag}. Gachabot tags are now comma-delimited; eg !pad roll +j,g,@"
