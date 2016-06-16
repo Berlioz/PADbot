@@ -15,3 +15,7 @@ production:
   channels:
   - ! '#zeusisloose'
   - ! '#pad'
+- server: irc.darkmyst.org
+  nick: asterbot
+  channels:
+  - ! '#pfchat'

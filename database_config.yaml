@@ -2,5 +2,5 @@
 adapter: postgres
 host: localhost
 database: pazudora
-user: victor
+user: flarebringer
 password: foobar

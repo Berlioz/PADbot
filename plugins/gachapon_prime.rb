@@ -105,9 +105,9 @@ class Gachapon
   #  p(godfest) = 0.22, p(gfe) = 0.06, p (6* gfe) = 0.02
   def roll(godfest_tags)
     boosted_gfe = godfest_tags.include?("4")
-    unboosted_gfes = godfest_tags.select{|tag| tag[0] == "-"}.map{|tag| tag[1..-1]}
-    godfest_tags = godfest_tags.delete_if{|tag| ["4", "X", "@"].include?(tag) || tag[0] == "-"}
-
+    unboosted_gfes = godfest_tags.select{|tag| tag[0] == "-"}.map{|tag| tag[1..-1].downcase}
+    tags = godfest_tags.select{|tag| !(["4", "X", "@"].include?(tag) || tag[0] == "-")}
+   
     test = rand(1000)
     if test < 300
       @silvers.sample
@@ -116,7 +116,7 @@ class Gachapon
     elsif test < 700
       @gods.sample
     elsif test < (boosted_gfe ? 900 : 920)
-      pantheon = godfest_tags.sample
+      pantheon = tags.sample
       @pantheons[pantheon] ? @pantheons[pantheon].sample : @gods.sample
     elsif test < (boosted_gfe ? 975 : 980)
       roll_gfe(unboosted_gfes)
@@ -126,6 +126,7 @@ class Gachapon
   end
 
   def roll_gfe(unboosted)
+    p "unboosted gfe: #{unboosted}"
     pool = []
     gfes.keys.each do |k|
       if unboosted.include?(k)
@@ -141,6 +142,7 @@ class Gachapon
   end
 
   def roll_super(unboosted)
+    p "unboosted sgfe: #{unboosted}"
     pool = []
     gfes.keys.each do |k|
       if unboosted.include?(k)
@@ -166,7 +168,7 @@ remember to use godfest tags! !pad tags for help"
   end
 
   def self.aliases
-    ['gacha', 'pull', 'roll', 'rem']
+    ['gacha', 'pull', 'roll']
   end
 
   def initialize
@@ -248,8 +250,8 @@ remember to use godfest tags! !pad tags for help"
 
       godfest_flags = argv.last[1..-1].upcase.split(',').uniq
       godfest_flags.each do |flag|
-        next if ["@". "4", "X"].include?(flag)
-        next if @gachapon_simulator.gfes.keys.map{|k| "-#{k}"}.include?(flag)
+        next if ["@", "4", "X"].include?(flag)
+        next if @gachapon_simulator.gfes.keys.map{|k| "-#{k.upcase}"}.include?(flag)
 
         unless @gachapon_simulator.pantheons.include?(flag)
           r = "Fatal: unknown godfest tag #{flag}. Gachabot tags are now comma-delimited; eg !pad roll +j,g,@"
@@ -317,7 +319,7 @@ remember to use godfest tags! !pad tags for help"
 
     if worthwhile?(monster)
       nick = nick
-      box = get_box(nick) rescue nil
+      box = godfest_flags.include?("X") ? nil : (get_box(nick) rescue nil)
       if box && in_box?(monster, box)
         msg = "Too bad you already have one."
       else
@@ -344,7 +346,7 @@ remember to use godfest tags! !pad tags for help"
       return "#{args.split(' ').last} doesn't seem like a number; remember to prepend godfest tags with a '+'"
     end
     dupes = 0
-    box = get_box(nick)
+    box = godfest_flags.include?("X") ? nil : get_box(nick)
     args.to_i.times do
       monster = Monster.get(@gachapon_simulator.roll(godfest_flags))
       stars = monster.stars
@@ -368,6 +370,7 @@ remember to use godfest tags! !pad tags for help"
       gods = gods[0..9]
     end
     price = stone_price(args.to_i * 5)
+    gods = gods.uniq
     if gods.length == 0
       r = "You rolled #{args} times (for $#{price}) and got jackshit all. Gungtrolled."
     else

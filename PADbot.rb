@@ -5,6 +5,7 @@ require 'data_mapper'
 require 'json'
 require 'yaml'
 require './dispatcher.rb'
+require './misc.rb'
 require './plugins/base.rb'
 Dir.glob("plugins/*.rb").each {|x| require_relative x}
 Dir.glob("plugins/*/*.rb").each {|x| require_relative x}
@@ -26,7 +27,7 @@ def initialize_cinch_bots(environment)
         c.server = server_config["server"]
         c.nick = server_config["nick"]
         c.channels = server_config["channels"]
-        c.plugins.plugins = [Dispatcher]
+        c.plugins.plugins = [Dispatcher, MiscPlugin]
       end
     end
   end

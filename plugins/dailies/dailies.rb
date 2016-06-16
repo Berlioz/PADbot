@@ -14,8 +14,8 @@ class DailiesPlugin < PazudoraPluginBase
   end
 
   # FUCK TZINFO
-  def get_timezone(arg)
-    if arg.to_i != 0
+  def get_timezone(arg, offset=-1)
+    rv = if arg.to_i != 0
       arg.to_i
     elsif arg.downcase == "pacific" || arg.downcase == "pst"
       -7
@@ -30,13 +30,15 @@ class DailiesPlugin < PazudoraPluginBase
     else
       raise "#{arg} is not a recognizable timezone"
     end
+
+    rv + offset
   end
 
   def respond(m, args)
     args = "" unless args
     argv = args.split
     group = nil
-    timezone = -7
+    timezone = -8
     if argv.length == 2
       group = argv.first.upcase
       begin

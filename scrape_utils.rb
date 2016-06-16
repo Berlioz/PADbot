@@ -264,18 +264,18 @@ class PadherderAPI
   def full_parse(start = 0)
     @monsters.each do |json_slug|
       begin
-        json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 6000000
-        json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 9999999
-        json_slug["xp_curve"] = 5000000 if json_slug["xp_curve"] == 16000000
+        json_slug["xp_curve"] = 5000000 unless JSON.parse(File.read("data/scraped_xp_curves.json")).keys.include?(json_slug["xp_curve"].to_s)
         m = monster_data(json_slug)
       rescue Exception => e
         binding.pry
         next
       end
       next if m[:id] < start
-      if Monster.get(m[:id])
-        #p "Updating ##{m[:id]} #{m[:name]}"
-        Monster.get(m[:id]).update!(m) rescue binding.pry
+      monster = Monster.get(m[:id])
+      binding.pry if m[:id].to_i == 2751
+      if monster
+        p "Update: #{m[:name]}" if m[:name] != monster.name
+        monster.update!(m) rescue binding.pry
       else
         p "Creating ##{m[:id]} #{m[:name]}"
         Monster.create!(monster_data(json_slug)) rescue binding.pry
