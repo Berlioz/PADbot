@@ -1,8 +1,11 @@
+minPerStamina = 3
+stamPerMin = 1/3
+
 class TimezoneConverter
   def self.to_ruby_timezone(timezone)
     offset = timezone.to_i
     offset = offset * -1 if offset < 0
-    if offset > 0 && offset < 10
+    if offset > 0 && offset < minPerStamina
       offset = "0#{offset}"
     elsif offset >= 24
       m.reply "Invalid UTC offset #{offset}" and return
@@ -16,7 +19,7 @@ end
 class StaminaPlugin < PazudoraPluginBase
   def self.helpstring
 "!pad stamina START END TIMEZONE
-Computes how long it will take to go from START (default 0) to END stamina, and when it will happen in your timezone. Pessimistic by up to 10 minutes for obvious reasons.
+Computes how long it will take to go from START (default 0) to END stamina, and when it will happen in your timezone. Pessimistic by up to #{minPerStam} minutes for obvious reasons.
 Input your timezone as an integer UTC offset, e.g +7 or -11. Defaults to -7 (pacific daylight savings)."
   end
 
@@ -44,10 +47,10 @@ Input your timezone as an integer UTC offset, e.g +7 or -11. Defaults to -7 (pac
     end
 
     stamina_delta = to - from
-    time_delta = stamina_delta * 60 * 10
+    time_delta = stamina_delta * 60 * minPerStam
     target_time = Time.now + time_delta
     target_time = target_time.getlocal(utc)
-    r = "You will gain #{stamina_delta} stamina (#{from}-#{to}) in ~#{stamina_delta * 10} minutes," +
+    r = "You will gain #{stamina_delta} stamina (#{from}-#{to}) in ~#{stamina_delta * minPerStamina} minutes," +
         target_time.strftime(" or around %I:%M%p UTC") + utc
     m.reply r
   end
@@ -85,7 +88,7 @@ Input your timezone as an integer UTC offset, e.g +7 or -11. Defaults to -7 (pac
     t = DateTime.strptime(given_time + utc, "%H:%M%z").to_time
     delta = t - Time.now
     delta = (delta > 0) ? delta : delta + 86400
-    stamina = (delta / (60 * 10)).round
+    stamina = (delta / (60 * minPerStam)).round
 
     if current_stamina == 0
       r = "By #{t.getlocal(utc).strftime("%I:%M%p")} UTC#{utc}, you will have gained #{stamina} stamina"
