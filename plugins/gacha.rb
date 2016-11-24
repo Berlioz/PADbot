@@ -273,9 +273,9 @@ remember to use godfest tags! !pad tags for help"
       end
       price = stone_price(args.to_i * 5)
       if gods.length == 0
-        r = "You rolled #{args} times (for $#{price}) and got jackshit all. Gungtrolled."
+        r = m.user.nick + " rolled #{args} times (for $#{price}) and got jackshit all. Gungtrolled."
       else
-        r = "You rolled #{args} times (for $#{price}) and got some gods:\n"
+        r = m.user.nick + " rolled #{args} times (for $#{price}) and got some gods:\n"
         r += gods.join("; ")
         if overflow > 0
           r += "...and #{overflow} more"
@@ -311,7 +311,7 @@ remember to use godfest tags! !pad tags for help"
       else
         msg = "I just saved you $5."
       end
-      r = "You got #{name}, a #{stars}* #{types.first}. #{msg}"
+      r = m.user.nick + " got #{name}, a #{stars}* #{types.first}. #{msg}"
       m.reply(r)
     else
       regex = false
@@ -348,7 +348,7 @@ remember to use godfest tags! !pad tags for help"
         m.reply("Unable to roll #{identifier}") and return if attempts == 1000
       end
       price = stone_price(attempts * 5)
-      m.reply("After #{attempts} attempts, you rolled a #{monster.name}. (There goes $#{price})")
+      m.reply("After #{attempts} attempts, " + m.user.nick + "rolled a #{monster.name}. (There goes $#{price})")
     end
   end
 end
